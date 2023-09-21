@@ -1,12 +1,23 @@
-import React, { Component } from 'react'
-import { Text, View } from 'react-native'
+import React from 'react';
+import {Text, View, Button, Alert} from 'react-native';
+import auth from '@react-native-firebase/auth';
 
-const HomeScreen = () => { 
-    return (
-      <View>
-        <Text> HomeScreen </Text>
-      </View>
-    );
-}
+const HomeScreen = () => {
+  const handleLogout = async () => {
+    try {
+      await auth().signOut();
+      Alert.alert('Logged out', 'You have been logged out successfully.');
+    } catch (error) {
+      Alert.alert('Logout Error', error.message);
+    }
+  };
 
-export default HomeScreen
+  return (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <Text>HomeScreen</Text>
+      <Button title="Logout" onPress={handleLogout} />
+    </View>
+  );
+};
+
+export default HomeScreen;

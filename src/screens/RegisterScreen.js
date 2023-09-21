@@ -7,19 +7,19 @@ import {
   StyleSheet,
   Alert,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import samvada_logo from '../assets/samvada-logo-black.png';
 import { ThemeContext } from '../context/ThemeContext';
 
 const RegisterScreen = ({ navigation }) => {
-  
-    const theme = useContext(ThemeContext);
+  const theme = useContext(ThemeContext);
 
-  
   const [countryCode, setCountryCode] = useState('+91');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [name, setName] = useState('');
+const [loading, setLoading] = useState(false);
 
   const handlePhoneNumberChange = text => {
     setPhoneNumber(text);
@@ -38,25 +38,22 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   const handleCreatePress = async () => {
-    console.log(
-      'Create button pressed with phone number:',
-      `${countryCode}${phoneNumber}`,
+      setLoading(true);
+    try {
+      const confirmation = await auth().signInWithPhoneNumber(
+        `${countryCode}${phoneNumber}`,
       );
-      navigation.navigate('Verification');  
+      navigation.navigate('Verification', { confirmation });
+    } catch (error) {
+      Alert.alert('Error sending OTP', error.message);
+    }
+      setLoading(false);
 
-    // Start phone number authentication
-    // try {
-    //   const confirmation = await auth().signInWithPhoneNumber(
-    //     `${countryCode}${phoneNumber}`,
-    //   );
-    //   // At this point, the OTP has been sent.
-    //   // You'll need to prompt the user for the OTP and use the 'confirmation' object
-    //   // to complete the authentication.
-    // } catch (error) {
-    //   Alert.alert('Error sending OTP', error.message);
-    // }
   };
 
+  // Condition to check if the button should be disabled
+  const isButtonDisabled = phoneNumber.length < 10 || !name;
+  
   return (
     <View style={[styles.container, {backgroundColor: theme.background}]}>
       <View style={styles.topSection}>
@@ -69,10 +66,7 @@ const RegisterScreen = ({ navigation }) => {
         </Text>
         <View style={styles.nameInputContainer}>
           <Text
-            style={[
-              styles.nameInitial,
-              {backgroundColor: theme.borderColor},
-            ]}>
+            style={[styles.nameInitial, {backgroundColor: theme.borderColor}]}>
             {getInitials(name)}
           </Text>
           <TextInput
@@ -100,13 +94,22 @@ const RegisterScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.bottomSection}>
-        <TouchableOpacity
-          style={[styles.customButton, {borderColor: theme.borderColor}]}
-          onPress={handleCreatePress}>
-          <Text style={[styles.buttonText, {color: theme.buttonText}]}>
-            Continue
-          </Text>
-        </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator size="large" color="#6A5BC2" />
+        ) : (
+          <TouchableOpacity
+            style={[
+              styles.customButton,
+              {borderColor: theme.borderColor},
+              isButtonDisabled && {opacity: 0.3},
+            ]}
+            onPress={handleCreatePress}
+            disabled={isButtonDisabled}>
+            <Text style={[styles.buttonText, {color: theme.buttonText}]}>
+              Continue
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

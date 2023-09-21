@@ -1,21 +1,16 @@
-import React, {useState, useContext} from 'react';
+import React, {useContext} from 'react';
 import {
   Text,
   View,
   Image,
   TouchableOpacity,
   StyleSheet,
-  Appearance,
 } from 'react-native';
-import samvada_logo from '../assets/samvada-logo-black.png';
 import welcome_messages from '../assets/welcome-messages.png';
 import { ThemeContext } from '../context/ThemeContext';
 
 const WelcomeScreen = ({ navigation }) => {
     const theme = useContext(ThemeContext);
-  console.log('====================================');
-  console.log(theme);
-  console.log('====================================');
   
   const handleContinuePress = () => {
     navigation.navigate('Register')

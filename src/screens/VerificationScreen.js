@@ -1,4 +1,4 @@
-import React, {useState, useRef, useContext} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   Text,
   View,
@@ -7,21 +7,16 @@ import {
   StyleSheet,
   Alert,
   Image,
+  ActivityIndicator,
 } from 'react-native';
-import auth from '@react-native-firebase/auth';
-import samvada_logo from '../assets/samvada-logo-black.png';
 import {ThemeContext} from '../context/ThemeContext';
 
-const VerificationScreen = () => {
-      const theme = useContext(ThemeContext);
+const VerificationScreen = ({route, navigation}) => {
+  const theme = useContext(ThemeContext);
+  const {confirmation} = route.params;
 
-    
   const [otp, setOtp] = useState('');
-  const [isBackspacePressed, setIsBackspacePressed] = useState(false);
-
-  const otpRefs = Array(6)
-    .fill()
-    .map(() => React.createRef());
+  const [loading, setLoading] = useState(false);
 
   const handleOtpChange = text => {
     if (text.length <= 6) {
@@ -29,53 +24,22 @@ const VerificationScreen = () => {
     }
   };
 
-  const handleBackspace = (e, index) => {
-    if (e.nativeEvent.key === 'Backspace') {
-      const newOtp = [...otp];
-      if (otp[index]) {
-        // If the current field has a value, clear it
-        newOtp[index] = '';
-        setOtp(newOtp);
-      } else if (index !== 0) {
-        // If the current field is empty, clear the previous field and shift focus
-        newOtp[index - 1] = '';
-        setOtp(newOtp);
-        otpRefs[index - 1].current.focus();
+  const handleConfirmPress = async () => {
+    setLoading(true);
+
+    try {
+      const result = await confirmation.confirm(otp);
+      if (result.user) {
+        // OTP is correct and user is logged in
+        // navigation.navigate('Home');
       }
+    } catch (error) {
+      Alert.alert(
+        'Invalid OTP',
+        'The entered OTP is incorrect. Please try again.',
+      );
     }
-  };
-
-  const handleKeyDown = (e, index) => {
-    if (e.nativeEvent.key === 'Backspace') {
-      setIsBackspacePressed(true);
-      startBackspaceTimer(index);
-    }
-  };
-
-  const handleKeyUp = () => {
-    setIsBackspacePressed(false);
-  };
-
-  const startBackspaceTimer = index => {
-    let currentIndex = index;
-    const timer = setInterval(() => {
-      if (!isBackspacePressed || currentIndex < 0) {
-        clearInterval(timer);
-        return;
-      }
-
-      const newOtp = [...otp];
-      newOtp[currentIndex] = '';
-      setOtp(newOtp);
-      if (currentIndex !== 0 && !otp[currentIndex]) {
-        currentIndex--;
-        otpRefs[currentIndex].current.focus();
-      }
-    }, 100); // clear values at an interval of 100ms
-  };
-
-  const handleConfirmPress = () => {
-    console.log('Entered OTP:', otp);
+    setLoading(false);
   };
 
   return (
@@ -113,12 +77,16 @@ const VerificationScreen = () => {
       </View>
 
       <View style={styles.bottomSection}>
-        <TouchableOpacity
-          style={[styles.confirmButton, otp.length !== 6 && {opacity: 0.3}]}
-          onPress={handleConfirmPress}
-          disabled={otp.length !== 6}>
-          <Text style={styles.confirmButtonText}>Confirm</Text>
-        </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator size="large" color="#6A5BC2" />
+        ) : (
+          <TouchableOpacity
+            style={[styles.confirmButton, otp.length !== 6 && {opacity: 0.3}]}
+            onPress={handleConfirmPress}
+            disabled={otp.length !== 6}>
+            <Text style={styles.confirmButtonText}>Confirm</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
