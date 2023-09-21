@@ -11,7 +11,7 @@ import {
 import auth from '@react-native-firebase/auth';
 import samvada_logo from '../assets/samvada-logo-black.png';
 
-const RegisterScreen = () => {
+const RegisterScreen = ({navigation}) => {
   const [countryCode, setCountryCode] = useState('+91');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [name, setName] = useState('');
@@ -36,19 +36,20 @@ const RegisterScreen = () => {
     console.log(
       'Create button pressed with phone number:',
       `${countryCode}${phoneNumber}`,
-    );
+      );
+      navigation.navigate('Verification');  
 
     // Start phone number authentication
-    try {
-      const confirmation = await auth().signInWithPhoneNumber(
-        `${countryCode}${phoneNumber}`,
-      );
-      // At this point, the OTP has been sent.
-      // You'll need to prompt the user for the OTP and use the 'confirmation' object
-      // to complete the authentication.
-    } catch (error) {
-      Alert.alert('Error sending OTP', error.message);
-    }
+    // try {
+    //   const confirmation = await auth().signInWithPhoneNumber(
+    //     `${countryCode}${phoneNumber}`,
+    //   );
+    //   // At this point, the OTP has been sent.
+    //   // You'll need to prompt the user for the OTP and use the 'confirmation' object
+    //   // to complete the authentication.
+    // } catch (error) {
+    //   Alert.alert('Error sending OTP', error.message);
+    // }
   };
 
   return (
