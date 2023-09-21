@@ -1,0 +1,43 @@
+import React, {createContext, useState, useEffect} from 'react';
+import {Appearance} from 'react-native';
+import lightLogo from '../assets/samvada-logo-black.png';
+import darkLogo from '../assets/samvada-logo-white.png'; 
+
+export const ThemeContext = createContext();
+
+export const ThemeProvider = ({children}) => {
+  const deviceTheme = Appearance.getColorScheme();
+  const [theme, setTheme] = useState(
+    deviceTheme === 'dark' ? darkTheme : lightTheme,
+  );
+
+  useEffect(() => {
+    const subscription = Appearance.addChangeListener(({colorScheme}) => {
+      setTheme(colorScheme === 'dark' ? darkTheme : lightTheme);
+    });
+
+    return () => subscription.remove();
+  }, []);
+
+  return (
+    <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
+  );
+};
+
+const lightTheme = {
+  background: '#fff',
+  text: '#000',
+  buttonBackground: '#6A5BC2',
+  borderColor: '#6A5BC2',
+  buttonText: '#6A5BC2',
+  logo: lightLogo,
+};
+
+const darkTheme = {
+  background: '#191919',
+  text: '#fff',
+  buttonBackground: '#fff',
+  borderColor: '#6A5BC2',
+  buttonText: '#6A5BC2',
+  logo: darkLogo,
+};

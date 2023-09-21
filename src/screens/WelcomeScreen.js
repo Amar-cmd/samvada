@@ -1,32 +1,41 @@
-import React from 'react';
-import {Text, View, Image, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useState, useContext} from 'react';
+import {
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Appearance,
+} from 'react-native';
 import samvada_logo from '../assets/samvada-logo-black.png';
 import welcome_messages from '../assets/welcome-messages.png';
-
-
+import { ThemeContext } from '../context/ThemeContext';
 
 const WelcomeScreen = ({ navigation }) => {
+    const theme = useContext(ThemeContext);
+  console.log('====================================');
+  console.log(theme);
+  console.log('====================================');
   
   const handleContinuePress = () => {
     navigation.navigate('Register')
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={samvada_logo} style={styles.logo} resizeMode="contain" />
-
+    <View style={[styles.container, {backgroundColor: theme.background}]}>
+      <Image source={theme.logo} style={styles.logo} resizeMode="contain" />
       <Image
         source={welcome_messages}
         style={styles.illustratorImage}
         resizeMode="contain"
       />
-
-      <Text style={styles.welcomeText}>Welcome</Text>
-
+      <Text style={[styles.welcomeText, {color: theme.text}]}>Welcome</Text>
       <TouchableOpacity
-        style={styles.continueButton}
+        style={[styles.continueButton, {borderColor: theme.borderColor}]}
         onPress={handleContinuePress}>
-        <Text style={styles.continueText}>Continue</Text>
+        <Text style={[styles.continueText, {color: theme.buttonText}]}>
+          Continue
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -55,7 +64,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#6A5BC2',
-    fontStyle:'italic',
+    fontStyle: 'italic',
   },
   continueButton: {
     paddingVertical: 12,
@@ -64,9 +73,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#6A5BC2',
-    borderRadius: 5, // Adding a slight roundness to the button
+    borderRadius: 5,
     marginTop: 20,
-    width:'100%',
+    width: '100%',
   },
   continueText: {
     color: '#6A5BC2',
@@ -74,5 +83,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
 
 export default WelcomeScreen;

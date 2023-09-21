@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   Text,
   View,
@@ -10,8 +10,13 @@ import {
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import samvada_logo from '../assets/samvada-logo-black.png';
+import { ThemeContext } from '../context/ThemeContext';
 
-const RegisterScreen = ({navigation}) => {
+const RegisterScreen = ({ navigation }) => {
+  
+    const theme = useContext(ThemeContext);
+
+  
   const [countryCode, setCountryCode] = useState('+91');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [name, setName] = useState('');
@@ -29,7 +34,7 @@ const RegisterScreen = ({navigation}) => {
     const firstNameInitial = parts[0] ? parts[0][0] : '';
     const lastNameInitial = parts[1] ? parts[1][0] : '';
     const initials = `${firstNameInitial}${lastNameInitial}`.toUpperCase();
-    return initials || 'N';
+    return initials || '';
   };
 
   const handleCreatePress = async () => {
@@ -53,21 +58,25 @@ const RegisterScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: theme.background}]}>
       <View style={styles.topSection}>
-        <Image
-          source={samvada_logo}
-          style={styles.image}
-          resizeMode="contain"
-        />
+        <Image source={theme.logo} style={styles.image} resizeMode="contain" />
       </View>
 
       <View style={styles.inputSection}>
-        <Text style={styles.heading}>Create Account</Text>
+        <Text style={[styles.heading, {color: theme.text}]}>
+          Create Account
+        </Text>
         <View style={styles.nameInputContainer}>
-          <Text style={styles.nameInitial}>{getInitials(name)}</Text>
+          <Text
+            style={[
+              styles.nameInitial,
+              {backgroundColor: theme.borderColor},
+            ]}>
+            {getInitials(name)}
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, {color: theme.text}]}
             placeholder="Enter Name"
             placeholderTextColor="#888"
             onChangeText={handleNameChange}
@@ -76,9 +85,11 @@ const RegisterScreen = ({navigation}) => {
         </View>
 
         <View style={styles.phoneInputContainer}>
-          <Text style={styles.countryCode}>{countryCode}</Text>
+          <Text style={[styles.countryCode, {color: theme.text}]}>
+            {countryCode}
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, {color: theme.text}]}
             placeholder="Enter Phone Number"
             placeholderTextColor="#888"
             keyboardType="phone-pad"
@@ -90,9 +101,11 @@ const RegisterScreen = ({navigation}) => {
 
       <View style={styles.bottomSection}>
         <TouchableOpacity
-          style={styles.customButton}
+          style={[styles.customButton, {borderColor: theme.borderColor}]}
           onPress={handleCreatePress}>
-          <Text style={styles.buttonText}>Continue</Text>
+          <Text style={[styles.buttonText, {color: theme.buttonText}]}>
+            Continue
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -159,7 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginRight: 10,
     padding: 10,
-    color: '#000',
+    color: '#fff',
     borderWidth: 1,
     borderColor: '#6A5BC2',
     textAlign: 'center',
@@ -168,7 +181,6 @@ const styles = StyleSheet.create({
     flex: 9, // 90% width
     height: 45,
     paddingLeft: 10,
-    color: '#000',
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#6A5BC2',

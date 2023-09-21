@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useContext} from 'react';
 import {
   Text,
   View,
@@ -10,20 +10,24 @@ import {
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import samvada_logo from '../assets/samvada-logo-black.png';
+import {ThemeContext} from '../context/ThemeContext';
 
 const VerificationScreen = () => {
+      const theme = useContext(ThemeContext);
+
+    
   const [otp, setOtp] = useState('');
-const [isBackspacePressed, setIsBackspacePressed] = useState(false);
+  const [isBackspacePressed, setIsBackspacePressed] = useState(false);
 
   const otpRefs = Array(6)
     .fill()
     .map(() => React.createRef());
 
- const handleOtpChange = text => {
-   if (text.length <= 6) {
-     setOtp(text);
-   }
- };
+  const handleOtpChange = text => {
+    if (text.length <= 6) {
+      setOtp(text);
+    }
+  };
 
   const handleBackspace = (e, index) => {
     if (e.nativeEvent.key === 'Backspace') {
@@ -41,53 +45,50 @@ const [isBackspacePressed, setIsBackspacePressed] = useState(false);
     }
   };
 
-    const handleKeyDown = (e, index) => {
-      if (e.nativeEvent.key === 'Backspace') {
-        setIsBackspacePressed(true);
-        startBackspaceTimer(index);
+  const handleKeyDown = (e, index) => {
+    if (e.nativeEvent.key === 'Backspace') {
+      setIsBackspacePressed(true);
+      startBackspaceTimer(index);
+    }
+  };
+
+  const handleKeyUp = () => {
+    setIsBackspacePressed(false);
+  };
+
+  const startBackspaceTimer = index => {
+    let currentIndex = index;
+    const timer = setInterval(() => {
+      if (!isBackspacePressed || currentIndex < 0) {
+        clearInterval(timer);
+        return;
       }
-    };
 
-    const handleKeyUp = () => {
-      setIsBackspacePressed(false);
-    };
-
-    const startBackspaceTimer = index => {
-      let currentIndex = index;
-      const timer = setInterval(() => {
-        if (!isBackspacePressed || currentIndex < 0) {
-          clearInterval(timer);
-          return;
-        }
-
-        const newOtp = [...otp];
-        newOtp[currentIndex] = '';
-        setOtp(newOtp);
-        if (currentIndex !== 0 && !otp[currentIndex]) {
-          currentIndex--;
-          otpRefs[currentIndex].current.focus();
-        }
-      }, 100); // clear values at an interval of 100ms
-    };
+      const newOtp = [...otp];
+      newOtp[currentIndex] = '';
+      setOtp(newOtp);
+      if (currentIndex !== 0 && !otp[currentIndex]) {
+        currentIndex--;
+        otpRefs[currentIndex].current.focus();
+      }
+    }, 100); // clear values at an interval of 100ms
+  };
 
   const handleConfirmPress = () => {
     console.log('Entered OTP:', otp);
-
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: theme.background}]}>
       <View style={styles.topSection}>
-        <Image
-          source={samvada_logo}
-          style={styles.image}
-          resizeMode="contain"
-        />
+        <Image source={theme.logo} style={styles.image} resizeMode="contain" />
       </View>
 
       <View style={styles.inputSection}>
-        <Text style={styles.heading}>Confirmation</Text>
-        <Text style={styles.instruction}>Please Enter The OTP</Text>
+        <Text style={[styles.heading, {color: theme.text}]}>Confirmation</Text>
+        <Text style={[styles.instruction, {color: theme.text}]}>
+          Please Enter The OTP
+        </Text>
 
         <View style={styles.otpBoxesContainer}>
           {Array(6)
@@ -115,8 +116,7 @@ const [isBackspacePressed, setIsBackspacePressed] = useState(false);
         <TouchableOpacity
           style={[styles.confirmButton, otp.length !== 6 && {opacity: 0.3}]}
           onPress={handleConfirmPress}
-          disabled={otp.length !== 6}
-        >
+          disabled={otp.length !== 6}>
           <Text style={styles.confirmButtonText}>Confirm</Text>
         </TouchableOpacity>
       </View>
