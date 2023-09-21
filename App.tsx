@@ -3,6 +3,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {SignedInStack, SignedOutStack} from './src/Navigation';
 import {ThemeProvider} from './src/context/ThemeContext';
 import auth from '@react-native-firebase/auth';
+import ToastProvider from './src/provider/ToastProvider'; // Make sure to adjust the path
 
 const App: React.FC = () => {
   const [loggedInUser, setLoggedInUser] = useState<boolean | null>(null);
@@ -28,11 +29,13 @@ const App: React.FC = () => {
 
 
   return (
-    <ThemeProvider>
-      <NavigationContainer>
-        {loggedInUser ? <SignedInStack /> : <SignedOutStack />}
-      </NavigationContainer>
-    </ThemeProvider>
+    <ToastProvider>
+      <ThemeProvider>
+        <NavigationContainer>
+          {loggedInUser ? <SignedInStack /> : <SignedOutStack />}
+        </NavigationContainer>
+      </ThemeProvider>
+    </ToastProvider>
   );
 };
 

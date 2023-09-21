@@ -10,9 +10,11 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {ThemeContext} from '../context/ThemeContext';
+import ToastContext from '../context/ToastContext';
 
 const VerificationScreen = ({route, navigation}) => {
   const theme = useContext(ThemeContext);
+  const {showToast} = useContext(ToastContext);
   const {confirmation} = route.params;
 
   const [otp, setOtp] = useState('');
@@ -31,7 +33,7 @@ const VerificationScreen = ({route, navigation}) => {
       const result = await confirmation.confirm(otp);
       if (result.user) {
         // OTP is correct and user is logged in
-        // navigation.navigate('Home');
+        showToast('Logged In Successfully. Welcome.');
       }
     } catch (error) {
       Alert.alert(

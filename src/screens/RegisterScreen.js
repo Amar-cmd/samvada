@@ -10,16 +10,17 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
-import samvada_logo from '../assets/samvada-logo-black.png';
-import { ThemeContext } from '../context/ThemeContext';
+import {ThemeContext} from '../context/ThemeContext';
+import ToastContext from '../context/ToastContext';
 
-const RegisterScreen = ({ navigation }) => {
+const RegisterScreen = ({navigation}) => {
   const theme = useContext(ThemeContext);
+  const {showToast} = useContext(ToastContext);
 
   const [countryCode, setCountryCode] = useState('+91');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [name, setName] = useState('');
-const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handlePhoneNumberChange = text => {
     setPhoneNumber(text);
@@ -38,22 +39,22 @@ const [loading, setLoading] = useState(false);
   };
 
   const handleCreatePress = async () => {
-      setLoading(true);
+    setLoading(true);
     try {
       const confirmation = await auth().signInWithPhoneNumber(
         `${countryCode}${phoneNumber}`,
       );
-      navigation.navigate('Verification', { confirmation });
+      showToast('OTP Sent. Please Confirm.');
+      navigation.navigate('Verification', {confirmation});
     } catch (error) {
       Alert.alert('Error sending OTP', error.message);
     }
-      setLoading(false);
-
+    setLoading(false);
   };
 
   // Condition to check if the button should be disabled
   const isButtonDisabled = phoneNumber.length < 10 || !name;
-  
+
   return (
     <View style={[styles.container, {backgroundColor: theme.background}]}>
       <View style={styles.topSection}>
@@ -148,7 +149,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     fontStyle: 'italic',
     fontWeight: 'bold',
-    letterSpacing:1,
+    letterSpacing: 1,
   },
   phoneInputContainer: {
     flexDirection: 'row',
