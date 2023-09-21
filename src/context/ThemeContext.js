@@ -1,7 +1,7 @@
 import React, {createContext, useState, useEffect} from 'react';
 import {Appearance} from 'react-native';
 import lightLogo from '../assets/samvada-logo-black.png';
-import darkLogo from '../assets/samvada-logo-white.png'; 
+import darkLogo from '../assets/samvada-logo-white.png';
 
 export const ThemeContext = createContext();
 
@@ -25,7 +25,8 @@ export const ThemeProvider = ({children}) => {
 };
 
 const lightTheme = {
-  background: '#fff',
+  containerBackground: '#ffffff',
+  background: '#F7F7F7',
   text: '#000',
   buttonBackground: '#6A5BC2',
   borderColor: '#6A5BC2',
@@ -34,6 +35,8 @@ const lightTheme = {
 };
 
 const darkTheme = {
+  // containerBackground: '#0E0E0E',
+  containerBackground: '#000',
   background: '#191919',
   text: '#fff',
   buttonBackground: '#fff',

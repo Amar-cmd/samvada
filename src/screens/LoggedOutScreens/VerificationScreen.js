@@ -9,8 +9,8 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import {ThemeContext} from '../context/ThemeContext';
-import ToastContext from '../context/ToastContext';
+import {ThemeContext} from '../../context/ThemeContext';
+import ToastContext from '../../context/ToastContext';
 
 const VerificationScreen = ({route, navigation}) => {
   const theme = useContext(ThemeContext);

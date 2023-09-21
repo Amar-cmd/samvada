@@ -1,19 +1,13 @@
 import React, {useContext} from 'react';
-import {
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import {Text, View, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import welcome_messages from '../assets/welcome-messages.png';
-import { ThemeContext } from '../context/ThemeContext';
+import {ThemeContext} from '../../context/ThemeContext';
 
-const WelcomeScreen = ({ navigation }) => {
-    const theme = useContext(ThemeContext);
-  
+const WelcomeScreen = ({navigation}) => {
+  const theme = useContext(ThemeContext);
+
   const handleContinuePress = () => {
-    navigation.navigate('Register')
+    navigation.navigate('Register');
   };
 
   return (
@@ -78,6 +72,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
 
 export default WelcomeScreen;

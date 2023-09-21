@@ -1,17 +1,21 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import HomeScreen from './screens/HomeScreen';
-import LoginScreen from './screens/LoginScreen';
-import RegisterScreen from './screens/RegisterScreen';
-import VerificationScreen from './screens/VerificationScreen';
-import WelcomeScreen from './screens/WelcomeScreen';
+import HomeScreen from './screens/LoggedInScreens/HomeScreen';
+import LoginScreen from './screens/LoggedOutScreens/LoginScreen';
+import RegisterScreen from './screens/LoggedOutScreens/RegisterScreen';
+import VerificationScreen from './screens/LoggedOutScreens/VerificationScreen';
+import WelcomeScreen from './screens/LoggedOutScreens/WelcomeScreen';
 
 const Stack = createStackNavigator();
 
 export const SignedInStack = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{headerShown: false}}
+      />
     </Stack.Navigator>
   );
 };
