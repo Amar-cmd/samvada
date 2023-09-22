@@ -7,12 +7,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  StatusBar,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {ThemeContext} from '../../context/ThemeContext';
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
   const theme = useContext(ThemeContext);
   const handleLogout = async () => {
     try {
@@ -23,65 +24,91 @@ const HomeScreen = () => {
     }
   };
 
+  console.log(theme);
   return (
-    <View
-      style={[styles.container, {backgroundColor: theme.containerBackground}]}>
-      <View style={styles.toolbar}>
-        <TouchableOpacity
-          onPress={() => {
-            /* Handle navigation */
-          }}>
-          <Icon name="menu" size={30} color="#7A7A7A" />
-        </TouchableOpacity>
+    <>
+      <StatusBar
+        barStyle={
+          theme.containerBackground === '#000'
+            ? 'light-content'
+            : 'dark-content'
+        }
+        backgroundColor={theme.containerBackground}
+      />
 
-        <Image source={theme.logo} style={styles.logo} resizeMode="contain" />
+      <View
+        style={[
+          styles.container,
+          {backgroundColor: theme.containerBackground},
+        ]}>
+        <View style={styles.toolbar}>
+          <TouchableOpacity
+            onPress={() => {
+              /* Handle navigation */
+            }}>
+            <Icon name="menu" size={30} color="#7A7A7A" />
+          </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => {}}>
-          <Icon name="moon" size={30} color="#0000" />
-        </TouchableOpacity>
-      </View>
+          <Image source={theme.logo} style={styles.logo} resizeMode="contain" />
 
-      <View style={[styles.content, {backgroundColor: theme.background}]}>
-        {/* //* Pinned Messages */}
-        <View></View>
+          <TouchableOpacity onPress={() => {}}>
+            <Icon name="moon" size={30} color="#0000" />
+          </TouchableOpacity>
+        </View>
 
-        {/* //* All Messages */}
-        <View style={styles.allMessagesContainer}>
-          <Text
-            style={[
-              styles.allMessagesHeader,
-              {backgroundColor: theme.containerBackground},
-            ]}>
-            All Messages
-          </Text>
-          {/* Example Profile Container */}
-          <View style={styles.profileContainer}>
-            {/* Profile Image */}
-            <Image
-              source={{
-                uri: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHJvZmlsZXxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80',
-              }}
-              style={styles.profileImage}
-            />
-            {/* Message Info */}
-            <View style={styles.messageInfo}>
-              <Text style={styles.profileName}>John Doe</Text>
-              <Text style={styles.recentMessage}>Hey there! How are you?</Text>
-            </View>
-            {/* Time and Tick */}
-            <View style={styles.timeAndTick}>
-              <Text style={styles.time}>10:30 PM</Text>
-              <Icon name="checkmark-done-outline" size={20} color="#7A7A7A" />
+        <View style={[styles.content, {backgroundColor: theme.background}]}>
+          {/* //* Pinned Messages */}
+          <View></View>
+
+          {/* //* All Messages */}
+          <View style={styles.allMessagesContainer}>
+            <Text
+              style={[
+                styles.allMessagesHeader,
+                {backgroundColor: theme.containerBackground},
+              ]}>
+              All Messages
+            </Text>
+            {/* Example Profile Container */}
+            <View style={styles.profileContainer}>
+              {/* Profile Image */}
+              <TouchableOpacity
+                style={styles.profileContainer}
+                onPress={() => navigation.navigate('ChatDetails')}
+                activeOpacity={0.7}>
+                <Image
+                  source={{
+                    uri: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHJvZmlsZXxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80',
+                  }}
+                  style={styles.profileImage}
+                />
+                {/* Message Info */}
+                <View style={styles.messageInfo}>
+                  <Text style={styles.profileName}>John Doe</Text>
+                  <Text style={styles.recentMessage}>
+                    Hey there! How are you?
+                  </Text>
+                </View>
+                {/* Time and Tick */}
+                <View style={styles.timeAndTick}>
+                  <Text style={styles.time}>10:30 PM</Text>
+                  <Icon
+                    name="checkmark-done-outline"
+                    size={20}
+                    color="#7A7A7A"
+                  />
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
-        </View>
-        <Button
+          <Button
             title="Logout"
             onPress={handleLogout}
             color={theme.buttonColor}
           />
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 

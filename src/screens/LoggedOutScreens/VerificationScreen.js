@@ -11,12 +11,16 @@ import {
 } from 'react-native';
 import {ThemeContext} from '../../context/ThemeContext';
 import ToastContext from '../../context/ToastContext';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 
 const VerificationScreen = ({route, navigation}) => {
   const theme = useContext(ThemeContext);
   const {showToast} = useContext(ToastContext);
-  const {confirmation} = route.params;
+  // const {confirmation} = route.params;
+  const {name, confirmation} = route.params;
 
+console.log(name);
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -26,6 +30,25 @@ const VerificationScreen = ({route, navigation}) => {
     }
   };
 
+  // const handleConfirmPress = async () => {
+  //   setLoading(true);
+
+  //   try {
+  //     const result = await confirmation.confirm(otp);
+  //     if (result.user) {
+  //       // OTP is correct and user is logged in
+  //       showToast('Logged In Successfully. Welcome.');
+  //     }
+  //   } catch (error) {
+  //     Alert.alert(
+  //       'Invalid OTP',
+  //       'The entered OTP is incorrect. Please try again.',
+  //     );
+  //   }
+  //   setLoading(false);
+  // };
+
+
   const handleConfirmPress = async () => {
     setLoading(true);
 
@@ -34,6 +57,21 @@ const VerificationScreen = ({route, navigation}) => {
       if (result.user) {
         // OTP is correct and user is logged in
         showToast('Logged In Successfully. Welcome.');
+
+        // Here, add user data to Firestore
+        const userRef = firestore().collection('users').doc(result.user.uid);
+        const doc = await userRef.get();
+
+        if (!doc.exists) {
+          await userRef.set({
+            username: name,
+            phoneNumber: result.user.phoneNumber,
+            UID: result.user.uid,
+            timestamp: firestore.FieldValue.serverTimestamp(),
+            userImage:
+              'https://icon-library.com/images/user-image-icon/user-image-icon-9.jpg',
+          });
+        }
       }
     } catch (error) {
       Alert.alert(

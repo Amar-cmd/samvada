@@ -45,7 +45,12 @@ const RegisterScreen = ({navigation}) => {
         `${countryCode}${phoneNumber}`,
       );
       showToast('OTP Sent. Please Confirm.');
-      navigation.navigate('Verification', {confirmation});
+      // navigation.navigate('Verification', {confirmation});
+      navigation.navigate('Verification', {
+        name: name,
+        confirmation: confirmation,
+      });
+
     } catch (error) {
       Alert.alert('Error sending OTP', error.message);
     }

@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {Text, View, Image, TouchableOpacity, StyleSheet} from 'react-native';
-import welcome_messages from '../assets/welcome-messages.png';
+import welcome_messages from '../../assets/welcome-messages.png';
 import {ThemeContext} from '../../context/ThemeContext';
 
 const WelcomeScreen = ({navigation}) => {
