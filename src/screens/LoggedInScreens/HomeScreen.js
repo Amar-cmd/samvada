@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   Text,
   View,
@@ -15,6 +15,12 @@ import {ThemeContext} from '../../context/ThemeContext';
 
 const HomeScreen = ({navigation}) => {
   const theme = useContext(ThemeContext);
+    const [showMenu, setShowMenu] = useState(false);
+
+    const handleMenuToggle = () => {
+      setShowMenu(!showMenu);
+  };
+  
   const handleLogout = async () => {
     try {
       await auth().signOut();
@@ -42,10 +48,7 @@ const HomeScreen = ({navigation}) => {
           {backgroundColor: theme.containerBackground},
         ]}>
         <View style={styles.toolbar}>
-          <TouchableOpacity
-            onPress={() => {
-              /* Handle navigation */
-            }}>
+          <TouchableOpacity onPress={() => setShowMenu(true)}>
             <Icon name="menu" size={30} color="#7A7A7A" />
           </TouchableOpacity>
 
@@ -101,13 +104,45 @@ const HomeScreen = ({navigation}) => {
               </TouchableOpacity>
             </View>
           </View>
-          <Button
+          {/* <Button
             title="Logout"
             onPress={handleLogout}
             color={theme.buttonColor}
-          />
+          /> */}
         </View>
       </View>
+
+      {showMenu && (
+        <TouchableOpacity
+          style={styles.fullScreenTouchable}
+          onPress={() => setShowMenu(false)}
+          activeOpacity={1} // to maintain the view opacity when pressed
+        >
+          <View
+            style={[styles.menuContainer, {backgroundColor: theme.background}]}
+            onStartShouldSetResponder={() => true} // To prevent touch events from reaching the outer TouchableOpacity
+          >
+            <View style={styles.closeButtonContainer}>
+              <TouchableOpacity onPress={() => setShowMenu(false)}>
+                <Icon name="close" size={30} color="#7A7A7A" />
+              </TouchableOpacity>
+            </View>
+            <Image
+              source={{uri: 'https://randomuser.me/api/portraits/men/32.jpg'}}
+              style={styles.menuProfileImage}
+            />
+            <Text style={[styles.menuProfileName, {color: theme.text}]}>
+              John Doe
+            </Text>
+            <Text style={[styles.menuProfilePhone, {color: theme.text}]}>
+              +1234567890
+            </Text>
+            <TouchableOpacity style={styles.editButton}>
+              <Text style={[{color: theme.text}]}>Edit Profile</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      )}
     </>
   );
 };
@@ -177,6 +212,48 @@ const styles = StyleSheet.create({
   },
   time: {
     color: '#7A7A7A',
+  },
+  menuProfileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 20,
+  },
+  menuProfileName: {
+    fontSize: 24,
+    marginBottom: 10,
+    color: '#000',
+  },
+  menuProfilePhone: {
+    fontSize: 18,
+    marginBottom: 20,
+    color: '#000',
+  },
+  editButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: '#7A7A7A',
+  },
+
+  fullScreenTouchable: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#0006',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  menuContainer: {
+    width: '100%', // or any desired width
+    borderTopLeftRadius: 50, // rounded corners if you like
+    alignItems: 'center',
+    padding: 20,
+  },
+  closeButtonContainer: {
+    alignSelf: 'flex-end',
   },
 });
 
