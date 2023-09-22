@@ -19,10 +19,7 @@ const HomeScreen = ({navigation}) => {
   const theme = useContext(ThemeContext);
   const [showMenu, setShowMenu] = useState(false);
   const [userData, setUserData] = useState(null);
-
-  const handleMenuToggle = () => {
-    setShowMenu(!showMenu);
-  };
+  const [recentChats, setRecentChats] = useState([]);
 
   const handleLogout = async () => {
     try {
@@ -53,7 +50,24 @@ const HomeScreen = ({navigation}) => {
     }
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = firestore()
+      .collection('conversations')
+      .where('userIds', 'array-contains', auth().currentUser.uid)
+      .onSnapshot(snapshot => {
+        const chats = [];
+        snapshot.forEach(doc => {
+          chats.push({
+            ...doc.data(),
+            id: doc.id,
+          });
+        });
+        setRecentChats(chats);
+      });
 
+    return () => unsubscribe();
+  }, []);
+  
   return (
     <>
       <StatusBar
@@ -100,7 +114,11 @@ const HomeScreen = ({navigation}) => {
               {/* Profile Image */}
               <TouchableOpacity
                 style={styles.profileContainer}
-                onPress={() => navigation.navigate('ChatDetails')}
+                onPress={() =>
+                  navigation.navigate('ChatDetails', {
+                    UID: userData.UID,
+                  })
+                }
                 activeOpacity={0.7}>
                 <Image
                   source={{
@@ -127,11 +145,11 @@ const HomeScreen = ({navigation}) => {
               </TouchableOpacity>
             </View>
           </View>
-          {/* <Button
+          <Button
             title="Logout"
             onPress={handleLogout}
             color={theme.buttonColor}
-          /> */}
+          />
         </View>
       </View>
 
