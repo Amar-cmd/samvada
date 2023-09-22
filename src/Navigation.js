@@ -6,6 +6,7 @@ import RegisterScreen from './screens/LoggedOutScreens/RegisterScreen';
 import VerificationScreen from './screens/LoggedOutScreens/VerificationScreen';
 import WelcomeScreen from './screens/LoggedOutScreens/WelcomeScreen';
 import ChatDetailsScreen from './screens/LoggedInScreens/ChatDetailsScreen';
+import ProfileScreen from './screens/LoggedInScreens/ProfileScreen';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +21,11 @@ export const SignedInStack = () => {
       <Stack.Screen
         name="ChatDetails"
         component={ChatDetailsScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
         options={{headerShown: false}}
       />
     </Stack.Navigator>

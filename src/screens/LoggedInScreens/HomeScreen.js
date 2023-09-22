@@ -73,6 +73,16 @@ const HomeScreen = ({navigation}) => {
      return () => unsubscribe();
    }, []);
   
+  const handleEditPress = () => {
+    setShowMenu(false); // hide the profile menu
+    navigation.navigate('Profile', {
+      UID: senderUID,
+      userImage: userData.userImage,
+      name: userData.username,
+      phoneNumber: userData.phoneNumber,
+    });
+  };
+
   return (
     <>
       <StatusBar
@@ -204,7 +214,9 @@ const HomeScreen = ({navigation}) => {
             <Text style={[styles.menuProfilePhone, {color: theme.text}]}>
               {userData.phoneNumber}
             </Text>
-            <TouchableOpacity style={styles.editButton}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={handleEditPress}>
               <Text style={[{color: theme.text}]}>Edit Profile</Text>
             </TouchableOpacity>
           </View>
