@@ -159,7 +159,15 @@ const ChatDetailsScreen = ({navigation, route}) => {
           </View>
 
           {/* Right Section: Profile Image */}
-          <Image source={{uri: userImage}} style={styles.profileImage} />
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('RecieverProfile', {
+                user: username,
+                userImage: userImage,
+              });
+            }}>
+            <Image source={{uri: userImage}} style={styles.profileImage} />
+          </TouchableOpacity>
         </View>
 
         {/* Rest of the screen */}
