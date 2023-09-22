@@ -15,6 +15,13 @@ import database from '@react-native-firebase/database';
 const ChatDetailsScreen = ({navigation, route}) => {
   const theme = useContext(ThemeContext);
   const UID = route.params.UID;
+  const receiverUID = route.params.receiverUID;
+  const username = route.params.user;
+  const userImage = route.params.userImage;
+
+  console.log('==========================');
+  console.log('sender UID = ', UID);
+  console.log('receiver UID = ', receiverUID);
 
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
@@ -45,26 +52,64 @@ const ChatDetailsScreen = ({navigation, route}) => {
   //   }
   // };
 
+  // const handleSendMessage = () => {
+  //   const trimmedMessage = message.trim();
+  //   if (trimmedMessage) {
+  //     // Define the path for the chat. For simplicity, I'm using user's UID as the chat ID.
+  //     // In a more complex application, you might want to generate a unique ID for each conversation.
+  //     const chatRef = database().ref(`conversations/${UID}/messages`);
+
+  //     // Push the new message to the path.
+  //     chatRef.push({
+  //       text: trimmedMessage,
+  //       timestamp: database.ServerValue.TIMESTAMP,
+  //       sender: UID, // Replace this with the actual UID of the sender.
+  //     });
+
+  //     setMessage('');
+  //   }
+  // };
+
   const handleSendMessage = () => {
     const trimmedMessage = message.trim();
     if (trimmedMessage) {
-      // Define the path for the chat. For simplicity, I'm using user's UID as the chat ID.
-      // In a more complex application, you might want to generate a unique ID for each conversation.
-      const chatRef = database().ref(`conversations/${UID}/messages`);
+      // Create a chat reference based on sender and receiver UIDs
+      const chatID = [UID, receiverUID].sort().join('_');
+      const chatRef = database().ref(`conversations/${chatID}/messages`);
 
       // Push the new message to the path.
       chatRef.push({
         text: trimmedMessage,
         timestamp: database.ServerValue.TIMESTAMP,
-        sender: UID, // Replace this with the actual UID of the sender.
+        sender: UID,
       });
 
       setMessage('');
     }
   };
 
+  // useEffect(() => {
+  //   const chatRef = database().ref(`conversations/${UID}/messages`);
+  //   chatRef.on('value', snapshot => {
+  //     const messages = [];
+  //     snapshot.forEach(childSnapshot => {
+  //       messages.push({
+  //         id: childSnapshot.key,
+  //         ...childSnapshot.val(),
+  //       });
+  //     });
+  //     setChatMessages(messages);
+  //   });
+
+  //   return () => {
+  //     chatRef.off();
+  //   };
+  // }, []);
+
   useEffect(() => {
-    const chatRef = database().ref(`conversations/${UID}/messages`);
+    const chatID = [UID, receiverUID].sort().join('_');
+    const chatRef = database().ref(`conversations/${chatID}/messages`);
+
     chatRef.on('value', snapshot => {
       const messages = [];
       snapshot.forEach(childSnapshot => {
@@ -79,7 +124,7 @@ const ChatDetailsScreen = ({navigation, route}) => {
     return () => {
       chatRef.off();
     };
-  }, []);
+  }, [UID, receiverUID]); // Add UID and receiverUID to the dependency array
 
   return (
     <>
@@ -109,17 +154,12 @@ const ChatDetailsScreen = ({navigation, route}) => {
 
           {/* Middle Section: Name & Online Status */}
           <View style={styles.middleSection}>
-            <Text style={styles.name}>John Doe</Text>
+            <Text style={styles.name}>{username}</Text>
             <Text style={styles.onlineStatus}>Online</Text>
           </View>
 
           {/* Right Section: Profile Image */}
-          <Image
-            source={{
-              uri: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHJvZmlsZXxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80',
-            }}
-            style={styles.profileImage}
-          />
+          <Image source={{uri: userImage}} style={styles.profileImage} />
         </View>
 
         {/* Rest of the screen */}
@@ -127,9 +167,11 @@ const ChatDetailsScreen = ({navigation, route}) => {
           {chatMessages.map(msg => (
             <View
               key={msg.id}
-              style={msg.sender === UID
+              style={
+                msg.sender === UID
                   ? styles.senderMessageContainer
-                  : styles.recipientMessageContainer}>
+                  : styles.recipientMessageContainer
+              }>
               <Text
                 style={
                   msg.sender === UID
@@ -256,7 +298,7 @@ const styles = StyleSheet.create({
   messageTime: {
     alignSelf: 'flex-end',
     fontSize: 10,
-    color: '#fff8',
+    color: '#b4ade0',
     marginTop: 5,
   },
 });

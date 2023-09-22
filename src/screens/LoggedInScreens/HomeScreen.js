@@ -19,7 +19,9 @@ const HomeScreen = ({navigation}) => {
   const theme = useContext(ThemeContext);
   const [showMenu, setShowMenu] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [recentChats, setRecentChats] = useState([]);
+  const [users, setUsers] = useState([]);
+
+  const senderUID = auth().currentUser.uid;
 
   const handleLogout = async () => {
     try {
@@ -50,23 +52,26 @@ const HomeScreen = ({navigation}) => {
     }
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = firestore()
-      .collection('conversations')
-      .where('userIds', 'array-contains', auth().currentUser.uid)
-      .onSnapshot(snapshot => {
-        const chats = [];
-        snapshot.forEach(doc => {
-          chats.push({
-            ...doc.data(),
-            id: doc.id,
-          });
-        });
-        setRecentChats(chats);
-      });
+   useEffect(() => {
+     // Fetch all users from Firestore
+     const unsubscribe = firestore()
+       .collection('users')
+       .onSnapshot(snapshot => {
+         const fetchedUsers = [];
+         snapshot.forEach(doc => {
+           if (doc.id !== auth().currentUser.uid) {
+             // Exclude the current user
+             fetchedUsers.push({
+               ...doc.data(),
+               id: doc.id,
+             });
+           }
+         });
+         setUsers(fetchedUsers);
+       });
 
-    return () => unsubscribe();
-  }, []);
+     return () => unsubscribe();
+   }, []);
   
   return (
     <>
@@ -109,10 +114,8 @@ const HomeScreen = ({navigation}) => {
               ]}>
               All Messages
             </Text>
-            {/* Example Profile Container */}
             <View style={styles.profileContainer}>
-              {/* Profile Image */}
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={styles.profileContainer}
                 onPress={() =>
                   navigation.navigate('ChatDetails', {
@@ -126,14 +129,12 @@ const HomeScreen = ({navigation}) => {
                   }}
                   style={styles.profileImage}
                 />
-                {/* Message Info */}
                 <View style={styles.messageInfo}>
                   <Text style={styles.profileName}>John Doe</Text>
                   <Text style={styles.recentMessage}>
                     Hey there! How are you?
                   </Text>
                 </View>
-                {/* Time and Tick */}
                 <View style={styles.timeAndTick}>
                   <Text style={styles.time}>10:30 PM</Text>
                   <Icon
@@ -142,14 +143,39 @@ const HomeScreen = ({navigation}) => {
                     color="#7A7A7A"
                   />
                 </View>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+              {users.map(user => (
+                <TouchableOpacity
+                  key={user.id}
+                  style={styles.profileContainer}
+                  onPress={() =>
+                    navigation.navigate('ChatDetails', {
+                      UID: senderUID,
+                      receiverUID: user.UID,
+                      user: user.username,
+                      userImage: user.userImage,
+                    })
+                  }
+                  activeOpacity={0.7}>
+                  <Image
+                    source={{uri: user.userImage}}
+                    style={styles.profileImage}
+                  />
+                  <View style={styles.messageInfo}>
+                    <Text style={styles.profileName}>{user.username}</Text>
+                    {/* ... (you can display more user details here if needed) */}
+                  </View>
+                  {/* ... (rest of the profile container code) */}
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
-          <Button
+
+          {/* <Button
             title="Logout"
             onPress={handleLogout}
             color={theme.buttonColor}
-          />
+          /> */}
         </View>
       </View>
 
