@@ -106,8 +106,8 @@ const HomeScreen = ({navigation}) => {
 
           <Image source={theme.logo} style={styles.logo} resizeMode="contain" />
 
-          <TouchableOpacity onPress={() => {}}>
-            <Icon name="moon" size={30} color="#0000" />
+          <TouchableOpacity onPress={() => {navigation.navigate("AllContacts")}}>
+            <Icon name="people" size={30} color="#7A7A7A" />
           </TouchableOpacity>
         </View>
 

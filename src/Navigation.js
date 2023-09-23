@@ -9,6 +9,7 @@ import ChatDetailsScreen from './screens/LoggedInScreens/ChatDetailsScreen';
 import ProfileScreen from './screens/LoggedInScreens/ProfileScreen';
 import RecieverProfileScreen from './screens/LoggedInScreens/RecieverProfileScreen';
 import LoginOTPScreen from './screens/LoggedOutScreens/LoginOTPScreen';
+import AllContactsScreen from './screens/LoggedInScreens/AllContactsScreen';
 
 const Stack = createStackNavigator();
 
@@ -33,6 +34,11 @@ export const SignedInStack = () => {
       <Stack.Screen
         name="Profile"
         component={ProfileScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AllContacts"
+        component={AllContactsScreen}
         options={{headerShown: false}}
       />
     </Stack.Navigator>
