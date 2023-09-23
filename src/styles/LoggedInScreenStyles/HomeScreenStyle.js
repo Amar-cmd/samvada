@@ -106,7 +106,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   closeButtonContainer: {
-    alignSelf: 'flex-end',
+    flexDirection:'row',
+    // alignSelf: 'flex-end',
+    width:'100%',
+    justifyContent:'space-between'
   },
 });
 

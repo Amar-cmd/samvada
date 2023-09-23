@@ -52,27 +52,27 @@ const HomeScreen = ({navigation}) => {
     }
   }, []);
 
-   useEffect(() => {
-     // Fetch all users from Firestore
-     const unsubscribe = firestore()
-       .collection('users')
-       .onSnapshot(snapshot => {
-         const fetchedUsers = [];
-         snapshot.forEach(doc => {
-           if (doc.id !== auth().currentUser.uid) {
-             // Exclude the current user
-             fetchedUsers.push({
-               ...doc.data(),
-               id: doc.id,
-             });
-           }
-         });
-         setUsers(fetchedUsers);
-       });
+  useEffect(() => {
+    // Fetch all users from Firestore
+    const unsubscribe = firestore()
+      .collection('users')
+      .onSnapshot(snapshot => {
+        const fetchedUsers = [];
+        snapshot.forEach(doc => {
+          if (doc.id !== auth().currentUser.uid) {
+            // Exclude the current user
+            fetchedUsers.push({
+              ...doc.data(),
+              id: doc.id,
+            });
+          }
+        });
+        setUsers(fetchedUsers);
+      });
 
-     return () => unsubscribe();
-   }, []);
-  
+    return () => unsubscribe();
+  }, []);
+
   const handleEditPress = () => {
     setShowMenu(false); // hide the profile menu
     navigation.navigate('Profile', {
@@ -180,12 +180,6 @@ const HomeScreen = ({navigation}) => {
               ))}
             </View>
           </View>
-
-          <Button
-            title="Logout"
-            onPress={handleLogout}
-            color={theme.buttonColor}
-          />
         </View>
       </View>
 
@@ -200,6 +194,9 @@ const HomeScreen = ({navigation}) => {
             onStartShouldSetResponder={() => true} // To prevent touch events from reaching the outer TouchableOpacity
           >
             <View style={styles.closeButtonContainer}>
+              <TouchableOpacity onPress={handleLogout}>
+                <Icon name="power" size={30} color="red" />
+              </TouchableOpacity>
               <TouchableOpacity onPress={() => setShowMenu(false)}>
                 <Icon name="close" size={30} color="#7A7A7A" />
               </TouchableOpacity>
