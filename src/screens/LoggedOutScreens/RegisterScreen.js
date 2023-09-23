@@ -22,6 +22,9 @@ const RegisterScreen = ({navigation}) => {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Condition to check if the button should be disabled
+  const isButtonDisabled = phoneNumber.length < 10 || !name;
+
   const handlePhoneNumberChange = text => {
     setPhoneNumber(text);
   };
@@ -35,7 +38,7 @@ const RegisterScreen = ({navigation}) => {
     const firstNameInitial = parts[0] ? parts[0][0] : '';
     const lastNameInitial = parts[1] ? parts[1][0] : '';
     const initials = `${firstNameInitial}${lastNameInitial}`.toUpperCase();
-    return initials || '';
+    return initials || 'EN';
   };
 
   const handleCreatePress = async () => {
@@ -45,20 +48,19 @@ const RegisterScreen = ({navigation}) => {
         `${countryCode}${phoneNumber}`,
       );
       showToast('OTP Sent. Please Confirm.');
-      // navigation.navigate('Verification', {confirmation});
       navigation.navigate('Verification', {
         name: name,
         confirmation: confirmation,
       });
-
     } catch (error) {
       Alert.alert('Error sending OTP', error.message);
     }
     setLoading(false);
   };
 
-  // Condition to check if the button should be disabled
-  const isButtonDisabled = phoneNumber.length < 10 || !name;
+  const handleLoginNavigation = () => {
+    navigation.navigate('Login');
+  };
 
   return (
     <View style={[styles.container, {backgroundColor: theme.background}]}>
@@ -71,8 +73,7 @@ const RegisterScreen = ({navigation}) => {
           Create Account
         </Text>
         <View style={styles.nameInputContainer}>
-          <Text
-            style={[styles.nameInitial, {backgroundColor: theme.borderColor}]}>
+          <Text style={[styles.nameInitial, {color: theme.text}]}>
             {getInitials(name)}
           </Text>
           <TextInput
@@ -103,18 +104,28 @@ const RegisterScreen = ({navigation}) => {
         {loading ? (
           <ActivityIndicator size="large" color="#6A5BC2" />
         ) : (
-          <TouchableOpacity
-            style={[
-              styles.customButton,
-              {borderColor: theme.borderColor},
-              isButtonDisabled && {opacity: 0.3},
-            ]}
-            onPress={handleCreatePress}
-            disabled={isButtonDisabled}>
-            <Text style={[styles.buttonText, {color: theme.buttonText}]}>
-              Continue
-            </Text>
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity
+              style={[
+                styles.customButton,
+                {borderColor: theme.borderColor},
+                isButtonDisabled && {opacity: 0.3},
+              ]}
+              onPress={handleCreatePress}
+              disabled={isButtonDisabled}>
+              <Text style={[styles.buttonText, {color: theme.buttonText}]}>
+                Continue
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.customButton, {borderColor: theme.borderColor}]}
+              onPress={handleLoginNavigation}>
+              <Text style={[styles.buttonText, {color: theme.buttonText}]}>
+                Already a Member? Login Now
+              </Text>
+            </TouchableOpacity>
+          </>
         )}
       </View>
     </View>

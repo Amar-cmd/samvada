@@ -8,7 +8,7 @@ const WelcomeScreen = ({navigation}) => {
   const theme = useContext(ThemeContext);
 
   const handleContinuePress = () => {
-    navigation.navigate('Register');
+    navigation.navigate('Login');
   };
 
   return (

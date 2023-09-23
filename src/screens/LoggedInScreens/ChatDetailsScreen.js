@@ -155,7 +155,7 @@ const ChatDetailsScreen = ({navigation, route}) => {
           {/* Middle Section: Name & Online Status */}
           <View style={styles.middleSection}>
             <Text style={styles.name}>{username}</Text>
-            <Text style={styles.onlineStatus}>Online</Text>
+            {/* <Text style={styles.onlineStatus}>Online</Text> */}
           </View>
 
           {/* Right Section: Profile Image */}

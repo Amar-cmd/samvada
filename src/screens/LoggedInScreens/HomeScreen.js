@@ -181,11 +181,11 @@ const HomeScreen = ({navigation}) => {
             </View>
           </View>
 
-          {/* <Button
+          <Button
             title="Logout"
             onPress={handleLogout}
             color={theme.buttonColor}
-          /> */}
+          />
         </View>
       </View>
 

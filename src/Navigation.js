@@ -8,6 +8,7 @@ import WelcomeScreen from './screens/LoggedOutScreens/WelcomeScreen';
 import ChatDetailsScreen from './screens/LoggedInScreens/ChatDetailsScreen';
 import ProfileScreen from './screens/LoggedInScreens/ProfileScreen';
 import RecieverProfileScreen from './screens/LoggedInScreens/RecieverProfileScreen';
+import LoginOTPScreen from './screens/LoggedOutScreens/LoginOTPScreen';
 
 const Stack = createStackNavigator();
 
@@ -47,6 +48,17 @@ export const SignedOutStack = () => {
         options={{headerShown: false}}
       />
       <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="LoginOTP"
+        component={LoginOTPScreen}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen
         name="Register"
         component={RegisterScreen}
         options={{headerShown: false}}
@@ -56,7 +68,6 @@ export const SignedOutStack = () => {
         component={VerificationScreen}
         options={{headerShown: false}}
       />
-      <Stack.Screen name="Login" component={LoginScreen} />
     </Stack.Navigator>
   );
 };

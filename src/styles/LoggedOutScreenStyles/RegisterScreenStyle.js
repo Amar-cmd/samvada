@@ -87,6 +87,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  memberText: {
+    marginTop: 10,
+    marginBottom: 5,
+    textAlign: 'center',
+  },
 });
 
 export default styles
