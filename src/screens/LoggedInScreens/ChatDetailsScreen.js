@@ -6,6 +6,8 @@ import {
   StatusBar,
   TextInput,
   TouchableOpacity,
+  Alert,
+  ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {ThemeContext} from '../../context/ThemeContext';
@@ -25,6 +27,46 @@ const ChatDetailsScreen = ({navigation, route}) => {
 
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedMessages, setSelectedMessages] = useState([]);
+
+  const handleToggleMessageSelection = messageId => {
+    if (selectedMessages.includes(messageId)) {
+      setSelectedMessages(prevSelected =>
+        prevSelected.filter(id => id !== messageId),
+      );
+    } else {
+      setSelectedMessages(prevSelected => [...prevSelected, messageId]);
+    }
+  };
+
+  const handleActivateSelectionMode = messageId => {
+    setIsSelectionMode(true);
+    setSelectedMessages([messageId]);
+  };
+
+  const handleDeleteSelectedMessages = () => {
+    Alert.alert(
+      'Delete Message',
+      'Are you sure you want to delete the selected message(s)?',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            const chatID = [UID, receiverUID].sort().join('_');
+            const chatRef = database().ref(`conversations/${chatID}/messages`);
+            for (let messageId of selectedMessages) {
+              await chatRef.child(messageId).remove();
+            }
+            setSelectedMessages([]);
+            setIsSelectionMode(false);
+          },
+        },
+      ],
+    );
+  };
 
   const formatTime = timestamp => {
     const date = new Date(timestamp);
@@ -35,40 +77,6 @@ const ChatDetailsScreen = ({navigation, route}) => {
     hours = hours ? hours : 12; // the hour '0' should be '12'
     return `${hours}:${minutes < 10 ? '0' : ''}${minutes} ${ampm}`;
   };
-
-  // const handleSendMessage = () => {
-  //   // Trim the message to remove any leading or trailing white spaces
-  //   const trimmedMessage = message.trim();
-
-  //   // Only proceed if the message is not an empty string
-  //   if (trimmedMessage) {
-  //     console.log(trimmedMessage, UID);
-
-  //     // Implement logic to send the message to Firestore if needed
-  //     // ...
-
-  //     // Reset the input field to an empty string
-  //     setMessage('');
-  //   }
-  // };
-
-  // const handleSendMessage = () => {
-  //   const trimmedMessage = message.trim();
-  //   if (trimmedMessage) {
-  //     // Define the path for the chat. For simplicity, I'm using user's UID as the chat ID.
-  //     // In a more complex application, you might want to generate a unique ID for each conversation.
-  //     const chatRef = database().ref(`conversations/${UID}/messages`);
-
-  //     // Push the new message to the path.
-  //     chatRef.push({
-  //       text: trimmedMessage,
-  //       timestamp: database.ServerValue.TIMESTAMP,
-  //       sender: UID, // Replace this with the actual UID of the sender.
-  //     });
-
-  //     setMessage('');
-  //   }
-  // };
 
   const handleSendMessage = () => {
     const trimmedMessage = message.trim();
@@ -88,24 +96,6 @@ const ChatDetailsScreen = ({navigation, route}) => {
     }
   };
 
-  // useEffect(() => {
-  //   const chatRef = database().ref(`conversations/${UID}/messages`);
-  //   chatRef.on('value', snapshot => {
-  //     const messages = [];
-  //     snapshot.forEach(childSnapshot => {
-  //       messages.push({
-  //         id: childSnapshot.key,
-  //         ...childSnapshot.val(),
-  //       });
-  //     });
-  //     setChatMessages(messages);
-  //   });
-
-  //   return () => {
-  //     chatRef.off();
-  //   };
-  // }, []);
-
   useEffect(() => {
     const chatID = [UID, receiverUID].sort().join('_');
     const chatRef = database().ref(`conversations/${chatID}/messages`);
@@ -124,7 +114,14 @@ const ChatDetailsScreen = ({navigation, route}) => {
     return () => {
       chatRef.off();
     };
-  }, [UID, receiverUID]); // Add UID and receiverUID to the dependency array
+  }, [UID, receiverUID]);
+
+  useEffect(() => {
+    // If the count of selected messages is 0, disable the selection mode
+    if (selectedMessages.length === 0) {
+      setIsSelectionMode(false);
+    }
+  }, [selectedMessages]);
 
   return (
     <>
@@ -170,29 +167,42 @@ const ChatDetailsScreen = ({navigation, route}) => {
           </TouchableOpacity>
         </View>
 
-        {/* Rest of the screen */}
         <View style={[styles.content, {backgroundColor: theme.background}]}>
-          {chatMessages.map(msg => (
-            <View
-              key={msg.id}
-              style={
-                msg.sender === UID
-                  ? styles.senderMessageContainer
-                  : styles.recipientMessageContainer
-              }>
-              <Text
-                style={
+          <ScrollView
+            showsVerticalScrollIndicator={true}
+          >
+            {chatMessages.map(msg => (
+              <TouchableOpacity
+                key={msg.id}
+                style={[
                   msg.sender === UID
-                    ? styles.senderMessage
-                    : styles.recipientMessage
-                }>
-                {msg.text}
-              </Text>
-              <Text style={styles.messageTime}>
-                {formatTime(msg.timestamp)}
-              </Text>
-            </View>
-          ))}
+                    ? styles.senderMessageContainer
+                    : styles.recipientMessageContainer,
+                  selectedMessages.includes(msg.id)
+                    ? styles.selectedMessage
+                    : null,
+                ]}
+                onLongPress={() => handleActivateSelectionMode(msg.id)}
+                onPress={() => {
+                  // Only handle tap selection if selection mode is active
+                  if (isSelectionMode) {
+                    handleToggleMessageSelection(msg.id);
+                  }
+                }}>
+                <Text
+                  style={
+                    msg.sender === UID
+                      ? styles.senderMessage
+                      : styles.recipientMessage
+                  }>
+                  {msg.text}
+                </Text>
+                <Text style={styles.messageTime}>
+                  {formatTime(msg.timestamp)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
       </View>
       <View
@@ -212,6 +222,18 @@ const ChatDetailsScreen = ({navigation, route}) => {
           <Icon name="send" size={16} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
+      {isSelectionMode && (
+        <View
+          style={[
+            styles.selectionToolbar,
+            {backgroundColor: theme.containerBackground},
+          ]}>
+          <Text>{selectedMessages.length} selected</Text>
+          <TouchableOpacity onPress={handleDeleteSelectedMessages}>
+            <Icon name="trash-outline" size={30} color="#7A7A7A" />
+          </TouchableOpacity>
+        </View>
+      )}
     </>
   );
 };

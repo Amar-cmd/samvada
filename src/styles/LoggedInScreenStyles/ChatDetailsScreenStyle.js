@@ -31,18 +31,12 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginTop: 30,
-    borderTopLeftRadius: 60,
-    borderTopRightRadius: 60,
-    paddingVertical: 60,
     paddingHorizontal: 10,
-    overflow: 'hidden',
+    paddingVertical: 10,
   },
   recipientMessageContainer: {
     alignSelf: 'flex-start',
-    // backgroundColor: '#EAEAEA',
     padding: 10,
-    // borderRadius: 10,
     borderBottomLeftRadius: 20,
     borderTopRightRadius: 20,
     marginBottom: 10,
@@ -78,6 +72,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 10,
     color: '#6A5BC2',
+    maxHeight: 150,
   },
   sendButton: {
     backgroundColor: '#6A5BC2',
@@ -92,6 +87,33 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#b4ade0',
     marginTop: 5,
+  },
+  selectedMessage: {
+    borderColor: '#FFFAF0',
+    borderWidth: 2,
+    backgroundColor: '#900',
+  },
+  selectionToolbar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    borderTopWidth: 1,
+    borderColor: '#6A5BC2',
+    backgroundColor: '#FFFFFF',
+  },
+  selectionText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#6A5BC2',
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    marginRight: 5,
+    color: '#FF0000',
   },
 });
 
