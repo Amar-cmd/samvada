@@ -1,4 +1,10 @@
-import React, {useState, useEffect, useContext, useCallback, useMemo} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useMemo,
+} from 'react';
 import Contacts from 'react-native-contacts';
 import {
   Text,
@@ -14,9 +20,11 @@ import {
   ScrollView,
   Dimensions,
   TextInput,
+  SectionList,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {ThemeContext} from '../../context/ThemeContext';
+import firestore from '@react-native-firebase/firestore';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -29,20 +37,35 @@ const AllContactsScreen = ({navigation}) => {
   const [contacts, setContacts] = useState([]);
   const [isSearchVisible, setSearchVisibility] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [users, setUsers] = useState([]);
+  const [userPhoneNumbers, setUserPhoneNumbers] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [nonMembers, setNonMembers] = useState([]);
+  const [userImages, setUserImages] = useState({});
 
   //! If Build Does Not Work in Production app then look at its npm docs and proguard code file.
 
- const openImageModal = useCallback(uri => {
-   setSelectedImageUri(uri);
-   setImageModalVisible(true);
- }, []);
+  //* to convert +91 12345 67890 to +911234567890
+  const sanitizePhoneNumber = number => {
+    let sanitizedNumber = number.replace(/[^0-9]/g, ''); // Removes all non-numeric characters
 
- const filteredContacts = useMemo(() => {
-   return contacts.filter(contact => {
-     const name = `${contact.givenName} ${contact.familyName}`;
-     return name.toLowerCase().includes(searchTerm.toLowerCase());
-   });
- }, [contacts, searchTerm]);
+    // If the number starts with '0', remove the '0'
+    if (sanitizedNumber.startsWith('0')) {
+      sanitizedNumber = sanitizedNumber.substring(1);
+    }
+
+    // If the number doesn't start with '+91', prepend it
+    if (!sanitizedNumber.startsWith('+91')) {
+      sanitizedNumber = '+91' + sanitizedNumber;
+    }
+
+    return sanitizedNumber;
+  };
+
+  const openImageModal = useCallback(uri => {
+    setSelectedImageUri(uri);
+    setImageModalVisible(true);
+  }, []);
 
   const HighlightedText = React.memo(({text, highlight}) => {
     const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
@@ -83,10 +106,52 @@ const AllContactsScreen = ({navigation}) => {
       console.warn(err);
     }
   });
+  const sortContactsByName = (a, b) => {
+    const nameA = (a.givenName || '').toUpperCase();
+    const nameB = (b.givenName || '').toUpperCase();
+
+    if (nameA < nameB) return -1;
+    if (nameA > nameB) return 1;
+
+    // If given names are the same, compare by family name
+    const familyNameA = (a.familyName || '').toUpperCase();
+    const familyNameB = (b.familyName || '').toUpperCase();
+
+    if (familyNameA < familyNameB) return -1;
+    if (familyNameA > familyNameB) return 1;
+
+    return 0;
+  };
 
   const fetchContacts = useCallback(async () => {
     try {
-      const contactsList = await Contacts.getAll();
+      let contactsList = await Contacts.getAll();
+
+      // Filter out any contacts that are null or don't have a phone number
+      contactsList = contactsList.filter(
+        contact => contact && contact.phoneNumbers && contact.phoneNumbers[0],
+      );
+
+      const membersList = [];
+      const nonMembersList = [];
+
+      contactsList.forEach(contact => {
+        const sanitizedContactNumber = sanitizePhoneNumber(
+          contact.phoneNumbers[0].number,
+        );
+        if (userPhoneNumbers.includes(sanitizedContactNumber)) {
+          membersList.push(contact);
+        } else {
+          nonMembersList.push(contact);
+        }
+      });
+
+      // Apply the sorting function
+      membersList.sort(sortContactsByName);
+      nonMembersList.sort(sortContactsByName);
+
+      setMembers(membersList);
+      setNonMembers(nonMembersList);
 
       // Generate colors for each contact
       const newContactColors = {};
@@ -130,6 +195,133 @@ const AllContactsScreen = ({navigation}) => {
   useEffect(() => {
     requestContactsPermission();
   }, []);
+
+  // useEffect(() => {
+  //   // Fetch all users from Firestore
+  //   const unsubscribe = firestore()
+  //     .collection('users')
+  //     .onSnapshot(snapshot => {
+  //       const phoneNumbers = []; // Array to store phone numbers of fetched users
+
+  //       snapshot.forEach(doc => {
+  //         const userData = {
+  //           ...doc.data(),
+  //           id: doc.id,
+  //         };
+
+  //         // If the user has a phoneNumber, add it to the phoneNumbers array
+  //         if (userData.phoneNumber) {
+  //           phoneNumbers.push(userData.phoneNumber);
+  //         }
+  //       });
+
+  //       setUserPhoneNumbers(phoneNumbers); // Set the state variable with the collected phone numbers
+
+  //       // Check if phoneNumbers is blank
+  //       if (phoneNumbers.length === 0) {
+  //         console.log('userPhoneNumbers is blank!');
+  //       }
+  //     });
+
+  //   return () => unsubscribe();
+  // }, []);
+
+  // useEffect(() => {
+  //   // Fetch all users from Firestore
+  //   const unsubscribe = firestore()
+  //     .collection('users')
+  //     .onSnapshot(snapshot => {
+  //       const phoneNumbers = []; // Array to store phone numbers of fetched users
+  //       const userImages = {}; // Object to store user images with phone number as the key
+
+  //       snapshot.forEach(doc => {
+  //         const userData = {
+  //           ...doc.data(),
+  //           id: doc.id,
+  //         };
+
+  //         // If the user has a phoneNumber, add it to the phoneNumbers array
+  //         if (userData.phoneNumber) {
+  //           phoneNumbers.push(userData.phoneNumber);
+
+  //           // If the user has a userImage, add it to the userImages object
+  //           if (userData.userImage) {
+  //             userImages[userData.phoneNumber] = userData.userImage;
+  //           }
+  //         }
+  //       });
+
+  //       setUserPhoneNumbers(phoneNumbers); // Set the state variable with the collected phone numbers
+
+  //       // You can set the userImages to a state variable if needed
+  //       // setUserImages(userImages);
+
+  //       // Check if phoneNumbers is blank
+  //       if (phoneNumbers.length === 0) {
+  //         console.log('userPhoneNumbers is blank!');
+  //       }
+  //     });
+
+  //   return () => unsubscribe();
+  // }, []);
+
+  useEffect(() => {
+    // Fetch all users from Firestore
+    const unsubscribe = firestore()
+      .collection('users')
+      .onSnapshot(snapshot => {
+        const phoneNumbers = [];
+        const fetchedUserImages = {}; 
+
+        snapshot.forEach(doc => {
+          const userData = {
+            ...doc.data(),
+            id: doc.id,
+          };
+
+          if (userData.phoneNumber) {
+            phoneNumbers.push(userData.phoneNumber);
+            
+            // If the user has an image, store it in the fetchedUserImages object
+            if (userData.userImage) {
+              fetchedUserImages[userData.phoneNumber] = userData.userImage;
+            }
+          }
+        });
+
+        setUserPhoneNumbers(phoneNumbers);
+        setUserImages(fetchedUserImages);
+
+
+        if (phoneNumbers.length === 0) {
+          console.log('userPhoneNumbers is blank!');
+        }
+      });
+
+    return () => unsubscribe();
+}, []);
+
+
+  // New useEffect to call fetchContacts when userPhoneNumbers changes
+  useEffect(() => {
+    if (userPhoneNumbers.length > 0) {
+      fetchContacts();
+    }
+  }, [userPhoneNumbers]);
+
+  const sectionedContacts = useMemo(() => {
+    const filterContacts = contactList => {
+      return contactList.filter(contact => {
+        const name = `${contact.givenName} ${contact.familyName}`;
+        return name.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+    };
+
+    return [
+      {title: 'Members', data: filterContacts(members)},
+      {title: 'Non-Members', data: filterContacts(nonMembers)},
+    ];
+  }, [members, nonMembers, searchTerm]);
 
   return (
     <>
@@ -184,15 +376,21 @@ const AllContactsScreen = ({navigation}) => {
           </TouchableOpacity>
         </View>
 
-        <FlatList
-          data={filteredContacts}
+        {/* <FlatList */}
+        <SectionList
+          // data={filteredContacts}
+          sections={sectionedContacts}
           keyExtractor={item => item.recordID}
+          renderSectionHeader={({section: {title}}) => (
+            <Text style={styles.sectionTitle}>{title}</Text>
+          )}
           initialNumToRender={10}
           maxToRenderPerBatch={10}
           windowSize={5}
           renderItem={({item}) => {
             const backgroundColor = contactColors[item.recordID];
             const name = `${item.givenName} ${item.familyName}`;
+            
             return (
               <View style={styles.profileContainer}>
                 {item.thumbnailPath ? (
@@ -356,6 +554,13 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    color: '#6A5BC2',
+    marginVertical: 10,
+    marginLeft: 10,
+    // fontWeight: 'bold',
   },
 });
 
