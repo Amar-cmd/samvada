@@ -24,6 +24,7 @@ import {ThemeContext} from '../../context/ThemeContext';
 import firestore from '@react-native-firebase/firestore';
 import styles from '../../styles/LoggedInScreenStyles/AllContactsScreenStyle';
 import ToastContext from '../../context/ToastContext';
+import auth from '@react-native-firebase/auth';
 
 const AllContactsScreen = ({navigation}) => {
   const theme = useContext(ThemeContext);
@@ -38,6 +39,9 @@ const AllContactsScreen = ({navigation}) => {
   const [userPhoneNumbers, setUserPhoneNumbers] = useState([]);
   const [userImages, setUserImages] = useState({});
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [userUids, setUserUids] = useState({});
+  const [usernames, setUsernames] = useState({});
+const [currentUID, setCurrentUID] = useState(null);
 
   //! If Build Does Not Work in Production app then look at its npm docs and proguard code file.
 
@@ -210,6 +214,42 @@ const AllContactsScreen = ({navigation}) => {
     requestContactsPermission();
   }, []);
 
+  // useEffect(() => {
+  //   // Fetch all users from Firestore
+  //   const unsubscribe = firestore()
+  //     .collection('users')
+  //     .onSnapshot(snapshot => {
+  //       const phoneNumbers = [];
+  //       const fetchedUserImages = {};
+
+  //       snapshot.forEach(doc => {
+  //         const userData = {
+  //           ...doc.data(),
+  //           id: doc.id,
+  //         };
+
+  //         if (userData.phoneNumber) {
+  //           phoneNumbers.push(userData.phoneNumber);
+
+  //           // If the user has an image, store it in the fetchedUserImages object
+  //           if (userData.userImage) {
+  //             fetchedUserImages[userData.phoneNumber] = userData.userImage;
+  //           }
+  //         }
+  //       });
+
+  //       setUserPhoneNumbers(phoneNumbers);
+  //       setUserImages(fetchedUserImages);
+  //       console.log(userImages);
+
+  //       if (phoneNumbers.length === 0) {
+  //         console.log('userPhoneNumbers is blank!');
+  //       }
+  //     });
+
+  //   return () => unsubscribe();
+  // }, []);
+
   useEffect(() => {
     // Fetch all users from Firestore
     const unsubscribe = firestore()
@@ -217,6 +257,8 @@ const AllContactsScreen = ({navigation}) => {
       .onSnapshot(snapshot => {
         const phoneNumbers = [];
         const fetchedUserImages = {};
+        const fetchedUserUids = {};
+        const fetchedUsernames = {};
 
         snapshot.forEach(doc => {
           const userData = {
@@ -231,16 +273,16 @@ const AllContactsScreen = ({navigation}) => {
             if (userData.userImage) {
               fetchedUserImages[userData.phoneNumber] = userData.userImage;
             }
+
+            fetchedUserUids[userData.phoneNumber] = doc.id;
+            fetchedUsernames[userData.phoneNumber] = userData.username;
           }
         });
 
         setUserPhoneNumbers(phoneNumbers);
         setUserImages(fetchedUserImages);
-        console.log(userImages);
-
-        if (phoneNumbers.length === 0) {
-          console.log('userPhoneNumbers is blank!');
-        }
+        setUserUids(fetchedUserUids);
+        setUsernames(fetchedUsernames);
       });
 
     return () => unsubscribe();
@@ -252,6 +294,13 @@ const AllContactsScreen = ({navigation}) => {
       fetchContacts();
     }
   }, [userPhoneNumbers]);
+
+  useEffect(() => {
+  const user = auth().currentUser;
+  if (user) {
+    setCurrentUID(user.uid);
+  }
+}, []);
 
   const sectionedContacts = useMemo(() => {
     const filterContacts = contactList => {
@@ -356,35 +405,51 @@ const AllContactsScreen = ({navigation}) => {
             // Fetch the userImage from userImages using the sanitized phone number
             const userImage = userImages[sanitizedPhoneNumber];
             return (
-              <View style={styles.profileContainer}>
-                {item.thumbnailPath || userImage ? (
-                  <TouchableOpacity
-                    onPress={() =>
-                      openImageModal(userImage ? userImage : item.thumbnailPath)
-                    }>
-                    <Image
-                      source={{uri: userImage ? userImage : item.thumbnailPath}}
-                      style={styles.profileImage}
-                    />
-                  </TouchableOpacity>
-                ) : (
-                  <View style={[styles.initialsContainer, {backgroundColor}]}>
-                    <Text style={styles.initialsText}>
-                      {item.givenName ? item.givenName.charAt(0) : ''}
-                      {item.familyName ? item.familyName.charAt(0) : ''}
-                    </Text>
-                  </View>
-                )}
+              <TouchableOpacity  onPress={() => {
+        if (item.isMember) {
+          navigation.navigate('ChatDetails', {
+            UID: currentUID,
+            receiverUID: userUids[sanitizedPhoneNumber],
+            user: usernames[sanitizedPhoneNumber],
+            userImage: userImages[sanitizedPhoneNumber],
+          });
+        }
+      }}
+      activeOpacity={0.7}>
+                <View style={styles.profileContainer}>
+                  {item.thumbnailPath || userImage ? (
+                    <TouchableOpacity
+                      onPress={() =>
+                        openImageModal(
+                          userImage ? userImage : item.thumbnailPath,
+                        )
+                      }>
+                      <Image
+                        source={{
+                          uri: userImage ? userImage : item.thumbnailPath,
+                        }}
+                        style={styles.profileImage}
+                      />
+                    </TouchableOpacity>
+                  ) : (
+                    <View style={[styles.initialsContainer, {backgroundColor}]}>
+                      <Text style={styles.initialsText}>
+                        {item.givenName ? item.givenName.charAt(0) : ''}
+                        {item.familyName ? item.familyName.charAt(0) : ''}
+                      </Text>
+                    </View>
+                  )}
 
-                <HighlightedText text={name} highlight={searchTerm} />
+                  <HighlightedText text={name} highlight={searchTerm} />
 
-                {/* <Text style={[styles.profilePhone, {color: theme.text}]}>
+                  {/* <Text style={[styles.profilePhone, {color: theme.text}]}>
                   {item.phoneNumbers && item.phoneNumbers[0]
                     ? item.phoneNumbers[0].number
                     : 'N/A'}
                 </Text> */}
-                <View style={styles.border}></View>
-              </View>
+                  <View style={styles.border}></View>
+                </View>
+              </TouchableOpacity>
             );
           }}
         />
