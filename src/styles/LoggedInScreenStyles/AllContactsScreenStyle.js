@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   },
   initialsText: {
     fontSize: 20,
-    color: '#FFF',
+    color: '#000',
   },
   modalContainer: {
     flex: 1,

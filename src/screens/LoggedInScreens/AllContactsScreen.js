@@ -17,25 +17,27 @@ import {
   ScrollView,
   TextInput,
   SectionList,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {ThemeContext} from '../../context/ThemeContext';
 import firestore from '@react-native-firebase/firestore';
 import styles from '../../styles/LoggedInScreenStyles/AllContactsScreenStyle';
+import ToastContext from '../../context/ToastContext';
 
 const AllContactsScreen = ({navigation}) => {
   const theme = useContext(ThemeContext);
+  const {showToast} = useContext(ToastContext);
+
   const [contactColors, setContactColors] = useState({});
   const [isImageModalVisible, setImageModalVisible] = useState(false);
   const [selectedImageUri, setSelectedImageUri] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [isSearchVisible, setSearchVisibility] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [users, setUsers] = useState([]);
   const [userPhoneNumbers, setUserPhoneNumbers] = useState([]);
-  const [members, setMembers] = useState([]);
-  const [nonMembers, setNonMembers] = useState([]);
   const [userImages, setUserImages] = useState({});
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   //! If Build Does Not Work in Production app then look at its npm docs and proguard code file.
 
@@ -117,7 +119,9 @@ const AllContactsScreen = ({navigation}) => {
     return 0;
   };
 
-  const fetchContacts = useCallback(async () => {
+  const fetchContacts = useCallback(async (showToastOnCompletion = false) => {
+    setIsRefreshing(true);
+
     try {
       let contactsList = await Contacts.getAll();
 
@@ -126,138 +130,85 @@ const AllContactsScreen = ({navigation}) => {
         contact => contact && contact.phoneNumbers && contact.phoneNumbers[0],
       );
 
-      const membersList = [];
-      const nonMembersList = [];
+      // Transform userPhoneNumbers into an indexed object for O(1) lookups
+      const userPhoneNumbersIndex = userPhoneNumbers.reduce((acc, number) => {
+        acc[number] = true;
+        return acc;
+      }, {});
 
-      contactsList.forEach(contact => {
+      contactsList = contactsList.map(contact => {
         const sanitizedContactNumber = sanitizePhoneNumber(
           contact.phoneNumbers[0].number,
         );
-        if (userPhoneNumbers.includes(sanitizedContactNumber)) {
-          membersList.push(contact);
-        } else {
-          nonMembersList.push(contact);
-        }
+        const isMember = !!userPhoneNumbersIndex[sanitizedContactNumber];
+        return {
+          ...contact,
+          isMember,
+        };
       });
 
-      // Apply the sorting function
-      membersList.sort(sortContactsByName);
-      nonMembersList.sort(sortContactsByName);
+      // Sort the entire contacts list
+      contactsList.sort(sortContactsByName);
 
-      setMembers(membersList);
-      setNonMembers(nonMembersList);
+      setContacts(contactsList);
 
       // Generate colors for each contact
       const newContactColors = {};
       contactsList.forEach(contact => {
-        newContactColors[contact.recordID] = generateRandomDarkColor();
+        newContactColors[contact.recordID] = generateRandomDarkColor(
+          contact.recordID,
+        );
       });
       setContactColors(newContactColors);
-
-      // Sorting logic
-      const sortedContacts = contactsList.sort((a, b) => {
-        // Handle potential null or undefined values for names
-        const nameA = (a.givenName || '').toUpperCase();
-        const nameB = (b.givenName || '').toUpperCase();
-
-        if (nameA < nameB) return -1;
-        if (nameA > nameB) return 1;
-
-        // If given names are the same, compare by family name
-        const familyNameA = (a.familyName || '').toUpperCase();
-        const familyNameB = (b.familyName || '').toUpperCase();
-
-        if (familyNameA < familyNameB) return -1;
-        if (familyNameA > familyNameB) return 1;
-
-        return 0;
-      });
-
-      setContacts(sortedContacts);
+      if (showToastOnCompletion) {
+        showToast('Contacts refreshed successfully!');
+      }
     } catch (err) {
       console.warn('Error fetching contacts', err);
+    } finally {
+      // Ensure isRefreshing is set to false at the end, regardless of success or failure
+      setIsRefreshing(false);
     }
   });
 
-  const generateRandomDarkColor = () => {
-    const red = Math.floor(Math.random() * 128); // Values between 0 and 127
-    const green = Math.floor(Math.random() * 128);
-    const blue = Math.floor(Math.random() * 128);
-    return `rgb(${red},${green},${blue})`;
+  const colorPalette = [
+    '#E57373',
+    '#F06292',
+    '#BA68C8',
+    '#9575CD',
+    '#7986CB',
+    '#64B5F6',
+    '#4FC3F7',
+    '#4DD0E1',
+    '#4DB6AC',
+    '#81C784',
+    '#AED581',
+    '#FFD54F',
+    // ... add more colors as required
+  ];
+
+  const hashString = str => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+  };
+
+  const getColorForContact = contactID => {
+    const index = Math.abs(hashString(contactID)) % colorPalette.length;
+    return colorPalette[index];
+  };
+
+  const generateRandomDarkColor = contactID => {
+    // Instead of generating a random color, use the getColorForContact function
+    return getColorForContact(contactID);
   };
 
   useEffect(() => {
     requestContactsPermission();
   }, []);
-
-  // useEffect(() => {
-  //   // Fetch all users from Firestore
-  //   const unsubscribe = firestore()
-  //     .collection('users')
-  //     .onSnapshot(snapshot => {
-  //       const phoneNumbers = []; // Array to store phone numbers of fetched users
-
-  //       snapshot.forEach(doc => {
-  //         const userData = {
-  //           ...doc.data(),
-  //           id: doc.id,
-  //         };
-
-  //         // If the user has a phoneNumber, add it to the phoneNumbers array
-  //         if (userData.phoneNumber) {
-  //           phoneNumbers.push(userData.phoneNumber);
-  //         }
-  //       });
-
-  //       setUserPhoneNumbers(phoneNumbers); // Set the state variable with the collected phone numbers
-
-  //       // Check if phoneNumbers is blank
-  //       if (phoneNumbers.length === 0) {
-  //         console.log('userPhoneNumbers is blank!');
-  //       }
-  //     });
-
-  //   return () => unsubscribe();
-  // }, []);
-
-  // useEffect(() => {
-  //   // Fetch all users from Firestore
-  //   const unsubscribe = firestore()
-  //     .collection('users')
-  //     .onSnapshot(snapshot => {
-  //       const phoneNumbers = []; // Array to store phone numbers of fetched users
-  //       const userImages = {}; // Object to store user images with phone number as the key
-
-  //       snapshot.forEach(doc => {
-  //         const userData = {
-  //           ...doc.data(),
-  //           id: doc.id,
-  //         };
-
-  //         // If the user has a phoneNumber, add it to the phoneNumbers array
-  //         if (userData.phoneNumber) {
-  //           phoneNumbers.push(userData.phoneNumber);
-
-  //           // If the user has a userImage, add it to the userImages object
-  //           if (userData.userImage) {
-  //             userImages[userData.phoneNumber] = userData.userImage;
-  //           }
-  //         }
-  //       });
-
-  //       setUserPhoneNumbers(phoneNumbers); // Set the state variable with the collected phone numbers
-
-  //       // You can set the userImages to a state variable if needed
-  //       // setUserImages(userImages);
-
-  //       // Check if phoneNumbers is blank
-  //       if (phoneNumbers.length === 0) {
-  //         console.log('userPhoneNumbers is blank!');
-  //       }
-  //     });
-
-  //   return () => unsubscribe();
-  // }, []);
 
   useEffect(() => {
     // Fetch all users from Firestore
@@ -311,10 +262,16 @@ const AllContactsScreen = ({navigation}) => {
     };
 
     return [
-      {title: 'Members', data: filterContacts(members)},
-      {title: 'Non-Members', data: filterContacts(nonMembers)},
+      {
+        title: 'Members',
+        data: filterContacts(contacts.filter(contact => contact.isMember)),
+      },
+      {
+        title: 'Non-Members',
+        data: filterContacts(contacts.filter(contact => !contact.isMember)),
+      },
     ];
-  }, [members, nonMembers, searchTerm]);
+  }, [contacts, searchTerm]);
 
   return (
     <>
@@ -348,11 +305,19 @@ const AllContactsScreen = ({navigation}) => {
           ) : (
             <Text style={styles.title}>All Contacts</Text>
           )}
-          <TouchableOpacity
-            style={styles.refreshButton}
-            onPress={fetchContacts}>
-            <Icon name="refresh" size={30} color="#7A7A7A" />
-          </TouchableOpacity>
+
+          {
+            // Step 3: Conditionally render Icon or ActivityIndicator
+            isRefreshing ? (
+              <ActivityIndicator size="large" color="#7A7A7A" />
+            ) : (
+              <TouchableOpacity
+                style={styles.refreshButton}
+                onPress={() => fetchContacts(true)}>
+                <Icon name="refresh" size={30} color="#7A7A7A" />
+              </TouchableOpacity>
+            )
+          }
           <TouchableOpacity
             style={styles.searchButton}
             onPress={() => {
@@ -451,6 +416,5 @@ const AllContactsScreen = ({navigation}) => {
     </>
   );
 };
-
 
 export default AllContactsScreen;
