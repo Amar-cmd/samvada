@@ -10,24 +10,18 @@ import {
   Text,
   View,
   TouchableOpacity,
-  StyleSheet,
   StatusBar,
   Image,
   PermissionsAndroid,
-  Alert,
-  FlatList,
   Modal,
   ScrollView,
-  Dimensions,
   TextInput,
   SectionList,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {ThemeContext} from '../../context/ThemeContext';
 import firestore from '@react-native-firebase/firestore';
-
-const screenWidth = Dimensions.get('window').width;
-const screenHeight = Dimensions.get('window').height;
+import styles from '../../styles/LoggedInScreenStyles/AllContactsScreenStyle';
 
 const AllContactsScreen = ({navigation}) => {
   const theme = useContext(ThemeContext);
@@ -271,7 +265,7 @@ const AllContactsScreen = ({navigation}) => {
       .collection('users')
       .onSnapshot(snapshot => {
         const phoneNumbers = [];
-        const fetchedUserImages = {}; 
+        const fetchedUserImages = {};
 
         snapshot.forEach(doc => {
           const userData = {
@@ -281,7 +275,7 @@ const AllContactsScreen = ({navigation}) => {
 
           if (userData.phoneNumber) {
             phoneNumbers.push(userData.phoneNumber);
-            
+
             // If the user has an image, store it in the fetchedUserImages object
             if (userData.userImage) {
               fetchedUserImages[userData.phoneNumber] = userData.userImage;
@@ -291,7 +285,7 @@ const AllContactsScreen = ({navigation}) => {
 
         setUserPhoneNumbers(phoneNumbers);
         setUserImages(fetchedUserImages);
-
+        console.log(userImages);
 
         if (phoneNumbers.length === 0) {
           console.log('userPhoneNumbers is blank!');
@@ -299,8 +293,7 @@ const AllContactsScreen = ({navigation}) => {
       });
 
     return () => unsubscribe();
-}, []);
-
+  }, []);
 
   // New useEffect to call fetchContacts when userPhoneNumbers changes
   useEffect(() => {
@@ -390,14 +383,22 @@ const AllContactsScreen = ({navigation}) => {
           renderItem={({item}) => {
             const backgroundColor = contactColors[item.recordID];
             const name = `${item.givenName} ${item.familyName}`;
-            
+            // Extract the phone number from the item, then sanitize it
+            const sanitizedPhoneNumber = sanitizePhoneNumber(
+              item.phoneNumbers[0]?.number || '',
+            );
+
+            // Fetch the userImage from userImages using the sanitized phone number
+            const userImage = userImages[sanitizedPhoneNumber];
             return (
               <View style={styles.profileContainer}>
-                {item.thumbnailPath ? (
+                {item.thumbnailPath || userImage ? (
                   <TouchableOpacity
-                    onPress={() => openImageModal(item.thumbnailPath)}>
+                    onPress={() =>
+                      openImageModal(userImage ? userImage : item.thumbnailPath)
+                    }>
                     <Image
-                      source={{uri: item.thumbnailPath}}
+                      source={{uri: userImage ? userImage : item.thumbnailPath}}
                       style={styles.profileImage}
                     />
                   </TouchableOpacity>
@@ -451,117 +452,5 @@ const AllContactsScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  toolbar: {
-    height: 56,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    paddingHorizontal: 15,
-    justifyContent: 'space-between',
-  },
-
-  backButton: {
-    marginRight: 15,
-  },
-  title: {
-    fontSize: 18,
-    color: '#7A7A7A',
-  },
-  searchButton: {
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    fontSize: 16,
-    marginRight: 10,
-  },
-  highlighted: {
-    color: '#6A5BC2', // Yellow color for the highlighted text
-  },
-  refreshButton: {
-    marginLeft: 'auto',
-    marginRight: 20,
-  },
-  profileContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-  },
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10,
-  },
-  profileName: {
-    fontSize: 16,
-    color: '#7A7A7A',
-  },
-  border: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: '80%',
-    height: 0.5,
-    opacity: 0.3,
-    backgroundColor: '#7A7A7A',
-  },
-  initialsContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#7A7A7A',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  initialsText: {
-    fontSize: 20,
-    color: '#FFF',
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imageScrollView: {
-    width: '100%',
-    height: '100%',
-  },
-  imageScrollViewContent: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  enlargedImage: {
-    width: screenWidth,
-    height: screenHeight,
-    resizeMode: 'contain',
-  },
-
-  closeButton: {
-    position: 'absolute',
-    top: 50,
-    right: 10,
-    borderRadius: 10,
-    padding: 5,
-  },
-  closeButtonText: {
-    fontSize: 16,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    color: '#6A5BC2',
-    marginVertical: 10,
-    marginLeft: 10,
-    // fontWeight: 'bold',
-  },
-});
 
 export default AllContactsScreen;
