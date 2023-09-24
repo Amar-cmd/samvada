@@ -1,5 +1,13 @@
 import { StyleSheet } from 'react-native'
 
+const profileContainer = {
+  flexDirection: 'row',
+  alignItems: 'center',
+  padding: 10,
+  borderRadius: 10,
+  marginBottom: 10,
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -35,14 +43,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 30,
   },
-  profileContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    // backgroundColor: 'white',
-    borderRadius: 10,
-    marginBottom: 10,
-  },
+  profileContainer,
+
   profileImage: {
     width: 50,
     height: 50,
@@ -106,10 +108,23 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   closeButtonContainer: {
-    flexDirection:'row',
+    flexDirection: 'row',
     // alignSelf: 'flex-end',
-    width:'100%',
-    justifyContent:'space-between'
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  selectionToolbar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    backgroundColor: '#f5f5f5',
+  },
+  selectedProfileContainer: {
+    ...profileContainer,
+    backgroundColor: '#6A5BC2',
   },
 });
 
