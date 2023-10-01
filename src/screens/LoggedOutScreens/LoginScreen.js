@@ -13,6 +13,7 @@ import auth from '@react-native-firebase/auth';
 import {ThemeContext} from '../../context/ThemeContext';
 import ToastContext from '../../context/ToastContext';
 import styles from '../../styles/LoggedOutScreenStyles/RegisterScreenStyle';
+import firestore from '@react-native-firebase/firestore';
 
 const LoginScreen = ({navigation}) => {
   const theme = useContext(ThemeContext);
@@ -31,21 +32,47 @@ const LoginScreen = ({navigation}) => {
 
   const handleLoginPress = async () => {
     setLoading(true);
-    try {
-      const confirmation = await auth().signInWithPhoneNumber(
-        `${countryCode}${phoneNumber}`,
+
+    // Check if user exists in the Firestore
+    const usersRef = firestore().collection('users');
+    const userDocument = await usersRef
+      .where('phoneNumber', '==', `${countryCode}${phoneNumber}`)
+      .get();
+
+    if (!userDocument.empty) {
+      // If user exists
+      try {
+        const confirmation = await auth().signInWithPhoneNumber(
+          `${countryCode}${phoneNumber}`,
+        );
+        showToast('OTP Sent. Please Confirm.');
+        navigation.navigate('LoginOTP', {
+          confirmation: confirmation,
+        });
+      } catch (error) {
+        Alert.alert('Error sending OTP', error.message);
+      }
+    } else {
+      Alert.alert(
+        'Please Register',
+        'Your account does not exist. Please Register.',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => {}, // Do nothing, just close the alert
+            style: 'cancel',
+          },
+          {
+            text: 'Register',
+            onPress: handleRegisterNavigation,
+          },
+        ],
+        {cancelable: false},
       );
-      showToast('OTP Sent. Please Confirm.');
-      // navigation.navigate('Verification', {confirmation});
-      navigation.navigate('LoginOTP', {
-        confirmation: confirmation,
-      });
-    } catch (error) {
-      Alert.alert('Error sending OTP', error.message);
     }
+
     setLoading(false);
   };
-
   const handleRegisterNavigation = () => {
     navigation.navigate('Register');
   };
