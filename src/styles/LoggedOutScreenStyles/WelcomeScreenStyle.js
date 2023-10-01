@@ -1,4 +1,6 @@
-import { StyleSheet } from "react-native";
+import {StyleSheet, Dimensions} from 'react-native';
+
+const { height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -10,12 +12,12 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: '60%',
-    height: 150,
-    marginBottom: 30,
+    height: height * 0.2,
+    marginBottom: 20,
   },
   illustratorImage: {
     width: '100%',
-    height: 350,
+    height: height * 0.4,
     marginBottom: 20,
   },
   welcomeText: {
