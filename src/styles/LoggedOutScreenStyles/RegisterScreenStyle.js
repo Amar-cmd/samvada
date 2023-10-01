@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#6A5BC2',
+    textTransform:'capitalize'
   },
   customButton: {
     paddingVertical: 12,
