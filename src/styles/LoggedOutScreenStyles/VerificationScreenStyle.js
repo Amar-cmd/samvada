@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   },
   otpText: {
     fontSize: 20,
+    color:'#000'
   },
   hiddenInput: {
     position: 'absolute',
