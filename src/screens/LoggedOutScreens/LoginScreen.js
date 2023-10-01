@@ -8,6 +8,11 @@ import {
   Image,
   ActivityIndicator,
   StatusBar,
+  ScrollView,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Platform,
+  Keyboard,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import {ThemeContext} from '../../context/ThemeContext';
@@ -77,72 +82,86 @@ const LoginScreen = ({navigation}) => {
     navigation.navigate('Register');
   };
   return (
-    <>
-      <StatusBar
-        barStyle={
-          theme.containerBackground === '#000'
-            ? 'light-content'
-            : 'dark-content'
-        }
-        backgroundColor={theme.background}
-      />
-      <View style={[styles.container, {backgroundColor: theme.background}]}>
-        <View style={styles.topSection}>
-          <Image
-            source={theme.logo}
-            style={styles.image}
-            resizeMode="contain"
-          />
-        </View>
-
-        <View style={styles.inputSection}>
-          <Text style={[styles.heading, {color: theme.text}]}>Login</Text>
-
-          <View style={styles.phoneInputContainer}>
-            <Text style={[styles.countryCode, {color: theme.text}]}>
-              {countryCode}
-            </Text>
-            <TextInput
-              style={[styles.input, {color: theme.text}]}
-              placeholder="Enter Phone Number"
-              placeholderTextColor="#888"
-              keyboardType="phone-pad"
-              onChangeText={handlePhoneNumberChange}
-              value={phoneNumber}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{flex: 1}}>
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <ScrollView contentContainerStyle={{flexGrow: 1}}>
+          <>
+            <StatusBar
+              barStyle={
+                theme.containerBackground === '#000'
+                  ? 'light-content'
+                  : 'dark-content'
+              }
+              backgroundColor={theme.background}
             />
-          </View>
-        </View>
+            <View
+              style={[styles.container, {backgroundColor: theme.background}]}>
+              <View style={styles.topSection}>
+                <Image
+                  source={theme.logo}
+                  style={styles.image}
+                  resizeMode="contain"
+                />
+              </View>
 
-        <View style={styles.bottomSection}>
-          {loading ? (
-            <ActivityIndicator size="large" color="#6A5BC2" />
-          ) : (
-            <>
-              <TouchableOpacity
-                style={[
-                  styles.customButton,
-                  {borderColor: theme.borderColor},
-                  isButtonDisabled && {opacity: 0.3},
-                ]}
-                onPress={handleLoginPress}
-                disabled={isButtonDisabled}>
-                <Text style={[styles.buttonText, {color: theme.buttonText}]}>
-                  Continue
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.inputSection}>
+                <Text style={[styles.heading, {color: theme.text}]}>Login</Text>
 
-              <TouchableOpacity
-                style={[styles.customButton, {borderColor: theme.borderColor}]}
-                onPress={handleRegisterNavigation}>
-                <Text style={[styles.buttonText, {color: theme.buttonText}]}>
-                  New Member? Register Now
-                </Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
-      </View>
-    </>
+                <View style={styles.phoneInputContainer}>
+                  <Text style={[styles.countryCode, {color: theme.text}]}>
+                    {countryCode}
+                  </Text>
+                  <TextInput
+                    style={[styles.input, {color: theme.text}]}
+                    placeholder="Enter Phone Number"
+                    placeholderTextColor="#888"
+                    keyboardType="phone-pad"
+                    onChangeText={handlePhoneNumberChange}
+                    value={phoneNumber}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.bottomSection}>
+                {loading ? (
+                  <ActivityIndicator size="large" color="#6A5BC2" />
+                ) : (
+                  <>
+                    <TouchableOpacity
+                      style={[
+                        styles.customButton,
+                        {borderColor: theme.borderColor},
+                        isButtonDisabled && {opacity: 0.3},
+                      ]}
+                      onPress={handleLoginPress}
+                      disabled={isButtonDisabled}>
+                      <Text
+                        style={[styles.buttonText, {color: theme.buttonText}]}>
+                        Continue
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.customButton,
+                        {borderColor: theme.borderColor},
+                      ]}
+                      onPress={handleRegisterNavigation}>
+                      <Text
+                        style={[styles.buttonText, {color: theme.buttonText}]}>
+                        New Member? Register Now
+                      </Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </View>
+            </View>
+          </>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

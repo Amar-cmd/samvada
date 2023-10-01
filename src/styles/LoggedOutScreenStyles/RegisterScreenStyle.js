@@ -3,21 +3,20 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
-    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   topSection: {
-    flex: 1,
+    flex: 1.5,
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
   inputSection: {
-    flex: 2,
+    flex: 1.5,
     justifyContent: 'center',
   },
   bottomSection: {
-    flex: 1,
+    flex: 1.5,
     justifyContent: 'flex-end',
   },
   image: {
@@ -72,7 +71,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#6A5BC2',
-    textTransform:'capitalize'
+    textTransform: 'capitalize',
   },
   customButton: {
     paddingVertical: 12,
