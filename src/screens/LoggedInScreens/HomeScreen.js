@@ -190,7 +190,7 @@ const HomeScreen = ({navigation}) => {
           ]}>
           <View style={styles.toolbar}>
             <TouchableOpacity onPress={() => setShowMenu(true)}>
-              <Icon name="menu" size={30} color="#7A7A7A" />
+              <Icon name="menu" size={styles.icon.fontSize} color="#7A7A7A" />
             </TouchableOpacity>
 
             <Image
@@ -203,7 +203,7 @@ const HomeScreen = ({navigation}) => {
               onPress={() => {
                 navigation.navigate('AllContacts');
               }}>
-              <Icon name="people" size={30} color="#7A7A7A" />
+              <Icon name="people" size={styles.icon.fontSize} color="#7A7A7A" />
             </TouchableOpacity>
           </View>
 
@@ -270,17 +270,21 @@ const HomeScreen = ({navigation}) => {
         <TouchableOpacity
           style={styles.fullScreenTouchable}
           onPress={() => setShowMenu(false)}
-          activeOpacity={0.8}>
+          activeOpacity={1}>
           <View
             style={[styles.menuContainer, {backgroundColor: theme.background}]}
             onStartShouldSetResponder={() => true} // To prevent touch events from reaching the outer TouchableOpacity
           >
             <View style={styles.closeButtonContainer}>
               <TouchableOpacity onPress={handleLogout}>
-                <Icon name="power" size={30} color="red" />
+                <Icon name="power" size={styles.icon.fontSize} color="red" />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setShowMenu(false)}>
-                <Icon name="close" size={30} color="#7A7A7A" />
+                <Icon
+                  name="close"
+                  size={styles.icon.fontSize}
+                  color="#7A7A7A"
+                />
               </TouchableOpacity>
             </View>
             <Image
@@ -296,7 +300,7 @@ const HomeScreen = ({navigation}) => {
             <TouchableOpacity
               style={styles.editButton}
               onPress={handleEditPress}>
-              <Text style={[{color: theme.text}]}>Edit Profile</Text>
+              <Text style={[styles.editText, {color: theme.text}]}>Edit Profile</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -315,7 +319,11 @@ const HomeScreen = ({navigation}) => {
               setSelectedUsers([]);
             }}>
             <TouchableOpacity onPress={handleDeleteSelected}>
-              <Icon name="trash-outline" size={30} color="#7A7A7A" />
+              <Icon
+                name="trash-outline"
+                size={styles.icon.fontSize}
+                color="#7A7A7A"
+              />
             </TouchableOpacity>
           </TouchableOpacity>
         </View>

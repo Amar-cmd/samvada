@@ -1,4 +1,7 @@
-import { StyleSheet } from 'react-native'
+import {StyleSheet, Dimensions} from 'react-native';
+
+const {width, height} = Dimensions.get('window');
+const isTablet = width / height > 0.6;
 
 const profileContainer = {
   flexDirection: 'row',
@@ -11,51 +14,55 @@ const profileContainer = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: isTablet ? 20 : 10,
   },
   toolbar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 10,
+    padding: isTablet ? 20 : 10,
     alignItems: 'center',
   },
   logo: {
-    width: '30%',
-    height: 50,
+    width: isTablet ? '20%' : '30%',
+    height: isTablet ? 80 : 50,
+  },
+  icon: {
+    fontSize: isTablet ? 50 : 30,
   },
   content: {
     width: '100%',
     height: '100%',
     marginTop: 30,
-    borderTopLeftRadius: 80,
-    borderTopRightRadius: 80,
+    borderTopLeftRadius: isTablet ? 100 : 80,
+    borderTopRightRadius: isTablet ? 100 : 80,
   },
   allMessagesContainer: {
-    padding: 10,
+    padding: isTablet ? 20 : 10,
     marginTop: 20,
     alignItems: 'center',
   },
   allMessagesHeader: {
-    fontSize: 16,
+    fontSize: isTablet ? 20 : 16,
     marginBottom: 20,
     color: '#7A7A7A',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: isTablet ? 15 : 10,
+    paddingHorizontal: isTablet ? 30 : 20,
     borderRadius: 30,
   },
   profileContainer,
 
   profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10,
+    width: isTablet ? 70 : 50,
+    height: isTablet ? 70 : 50,
+    borderRadius: isTablet ? 35 : 25,
+    marginRight: isTablet ? 20 : 10,
   },
   messageInfo: {
     flex: 3,
   },
   profileName: {
     fontWeight: 'bold',
+    fontSize: isTablet ? 20 : 16,
     color: '#7A7A7A',
   },
   recentMessage: {
@@ -69,26 +76,32 @@ const styles = StyleSheet.create({
     color: '#7A7A7A',
   },
   menuProfileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: isTablet ? 300 : 100,
+    height: isTablet ? 300 : 100,
+    borderRadius: isTablet ? 150 : 50,
     marginBottom: 20,
   },
   menuProfileName: {
-    fontSize: 24,
+    fontSize: isTablet ? 40 : 24,
     marginBottom: 10,
     color: '#000',
   },
   menuProfilePhone: {
-    fontSize: 18,
+    fontSize: isTablet ? 30 : 18,
     marginBottom: 20,
     color: '#000',
   },
   editButton: {
-    padding: 10,
+    width: isTablet ? '70%' : '40%',
+    padding: isTablet ? 25 : 10,
     borderWidth: 1,
     borderRadius: 5,
     borderColor: '#7A7A7A',
+    marginTop: isTablet ? 25 : 10,
+  },
+  editText: {
+    fontSize: isTablet ? 25 : 14,
+    textAlign: 'center',
   },
 
   fullScreenTouchable: {
@@ -103,9 +116,10 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     width: '100%', // or any desired width
-    borderTopLeftRadius: 50, // rounded corners if you like
+    borderTopLeftRadius: isTablet ? 70 : 50,
     alignItems: 'center',
-    padding: 20,
+    padding: isTablet ? 30 : 20,
+    minHeight: '60%',
   },
   closeButtonContainer: {
     flexDirection: 'row',
@@ -117,7 +131,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
+    padding: isTablet ? 15 : 10,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
     backgroundColor: '#f5f5f5',
