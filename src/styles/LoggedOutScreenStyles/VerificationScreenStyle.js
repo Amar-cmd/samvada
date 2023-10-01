@@ -1,15 +1,18 @@
-import { StyleSheet } from "react-native";
+import {StyleSheet, Dimensions} from 'react-native';
+
+const {width, height} = Dimensions.get('window');
+
+const isTablet = width / height > 0.6;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
+    padding: isTablet ? 40 : 20,
     justifyContent: 'space-between',
   },
   topSection: {
     flex: 1,
-    justifyContent: 'flex-start',
+    justifyContent: isTablet ? 'center' : 'flex-start',
     alignItems: 'center',
   },
   inputSection: {
@@ -19,18 +22,20 @@ const styles = StyleSheet.create({
   },
 
   bottomSection: {
-    flex: 1,
+    flex: 1.5,
     justifyContent: 'flex-end',
+    width: isTablet ? '70%' : '100%',
+    alignSelf: 'center',
   },
   image: {
-    width: '60%',
-    height: 150,
+    width: isTablet ? '40%' : '60%',
+    height: isTablet ? 200 : 150,
     marginBottom: 30,
     alignSelf: 'center',
   },
   heading: {
     color: '#6A5BC2',
-    fontSize: 30,
+    fontSize: isTablet ? 40 : 30,
     alignSelf: 'center',
     marginBottom: 30,
     fontStyle: 'italic',
@@ -39,13 +44,13 @@ const styles = StyleSheet.create({
   },
   instruction: {
     color: '#6A5BC2',
-    fontSize: 20,
+    fontSize: isTablet ? 30 : 20,
     alignSelf: 'center',
     marginBottom: 30,
   },
 
   confirmButton: {
-    paddingVertical: 12,
+    paddingVertical: isTablet ? 18 : 12,
     paddingHorizontal: 20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -55,7 +60,7 @@ const styles = StyleSheet.create({
   },
   confirmButtonText: {
     color: '#6A5BC2',
-    fontSize: 18,
+    fontSize: isTablet ? 24 : 18,
     fontWeight: 'bold',
   },
   otpContainer: {
@@ -66,13 +71,13 @@ const styles = StyleSheet.create({
   },
   otpInput: {
     flex: 1,
-    height: 50, // Increased height
-    lineHeight: 50, // Added lineHeight
+    height: isTablet ? 60 : 50,
+    lineHeight: isTablet ? 60 : 50,
     borderColor: '#6A5BC2',
     borderWidth: 1,
     textAlign: 'center',
-    fontSize: 24,
-    marginHorizontal: 5,
+    fontSize: isTablet ? 28 : 24,
+    marginHorizontal: isTablet ? 10 : 5,
   },
 
   otpBoxesContainer: {
@@ -80,20 +85,20 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   otpBox: {
-    width: 50,
-    height: 50,
+    width: isTablet ? 60 : 50,
+    height: isTablet ? 60 : 50,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#6A5BC2',
-    marginHorizontal: 5,
+    marginHorizontal: isTablet ? 10 : 5,
   },
   otpBoxFilled: {
     backgroundColor: '#CAC3F1',
   },
   otpText: {
-    fontSize: 20,
-    color:'#000'
+    fontSize: isTablet ? 26 : 20,
+    color: '#000',
   },
   hiddenInput: {
     position: 'absolute',
