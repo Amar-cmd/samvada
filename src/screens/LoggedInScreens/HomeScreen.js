@@ -15,6 +15,7 @@ import {ThemeContext} from '../../context/ThemeContext';
 import styles from '../../styles/LoggedInScreenStyles/HomeScreenStyle';
 import firestore from '@react-native-firebase/firestore';
 import database from '@react-native-firebase/database';
+import ToastContext from '../../context/ToastContext';
 
 const HomeScreen = ({navigation}) => {
   const theme = useContext(ThemeContext);
@@ -23,8 +24,12 @@ const HomeScreen = ({navigation}) => {
   const [recentChats, setRecentChats] = useState([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const senderUID = auth().currentUser.uid;
+  const {showToast} = useContext(ToastContext);
+
+  // const senderUID = auth().currentUser.uid;
+  const senderUID = auth().currentUser ? auth().currentUser.uid : null;
 
   const handleUserSelect = userUID => {
     if (selectedUsers.includes(userUID)) {
@@ -79,13 +84,14 @@ const HomeScreen = ({navigation}) => {
     );
   };
 
-
   const handleLogout = async () => {
     try {
+      setIsLoggingOut(true);
       await auth().signOut();
-      Alert.alert('Logged out', 'You have been logged out successfully.');
+      showToast('Successfully Logged Out.');
     } catch (error) {
       Alert.alert('Logout Error', error.message);
+      setIsLoggingOut(false); // reset state if there's an error
     }
   };
 
@@ -120,6 +126,8 @@ const HomeScreen = ({navigation}) => {
   };
 
   useEffect(() => {
+    if (!senderUID) return;
+
     // Fetch recent chats from Firebase Realtime Database
     const conversationsRef = database().ref('conversations');
     const handleDataChange = snapshot => {
@@ -262,8 +270,7 @@ const HomeScreen = ({navigation}) => {
         <TouchableOpacity
           style={styles.fullScreenTouchable}
           onPress={() => setShowMenu(false)}
-          activeOpacity={0.8}
-        >
+          activeOpacity={0.8}>
           <View
             style={[styles.menuContainer, {backgroundColor: theme.background}]}
             onStartShouldSetResponder={() => true} // To prevent touch events from reaching the outer TouchableOpacity
