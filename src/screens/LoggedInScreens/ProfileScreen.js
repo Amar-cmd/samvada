@@ -7,6 +7,9 @@ import {
   ActivityIndicator,
   TextInput,
   Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import lightLogo from '../../assets/samvada-logo-black.png';
 import {ThemeContext} from '../../context/ThemeContext';
@@ -154,86 +157,92 @@ const ProfileScreen = ({navigation, route}) => {
         ]}>
         <View style={styles.toolbar}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="arrow-back" size={30} color="#7A7A7A" />
+            <Icon
+              name="arrow-back"
+              size={styles.icon.fontSize}
+              color="#7A7A7A"
+            />
           </TouchableOpacity>
           <Image source={theme.logo} style={styles.logo} resizeMode="contain" />
           <View>
-            <Icon name="menu" size={30} color="#0000" />
+            <Icon name="menu" size={styles.icon.fontSize} color="#0000" />
           </View>
         </View>
 
         {/* Content Container */}
-        <View style={[styles.content, {backgroundColor: theme.background}]}>
-          {/* Profile Image */}
-          <View>
-            <TouchableOpacity onPress={handleProfileImagePress}>
-              <Image
-                source={{
-                  uri: selectedImageUri ? selectedImageUri : userImage,
-                }}
-                style={styles.profileImage}
-              />
-              <View
-                style={{
-                  position: 'absolute',
-                  bottom: 10,
-                  right: 0,
-                  backgroundColor: '#6A5BC2',
-                  padding: 10,
-                  borderRadius: 30,
-                }}>
-                <Icon name="camera" size={30} color="#fff" />
-              </View>
-            </TouchableOpacity>
-          </View>
-
-          {/* Name */}
-          <TouchableOpacity
-            style={styles.nameContainer}
-            onPress={() => setIsEditing(true)}
-            activeOpacity={0.7}>
-            {isEditing ? (
-              <>
-                <TextInput
-                  style={styles.profileNameInput}
-                  value={name}
-                  onChangeText={setName}
-                />
-                <TouchableOpacity onPress={handleUpdateName}>
-                  <Text style={styles.updateButtonText}>Update</Text>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{flex: 1}}>
+          <ScrollView contentContainerStyle={{flexGrow: 1}}>
+            <View style={[styles.content, {backgroundColor: theme.background}]}>
+              {/* Profile Image */}
+              <View>
+                <TouchableOpacity onPress={handleProfileImagePress}>
+                  <Image
+                    source={{
+                      uri: selectedImageUri ? selectedImageUri : userImage,
+                    }}
+                    style={styles.profileImage}
+                  />
+                  <View style={styles.cameraIconContainer}>
+                    <Icon
+                      name="camera"
+                      size={styles.icon.fontSize}
+                      color="#fff"
+                    />
+                  </View>
                 </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                <Text style={styles.profileName}>{name}</Text>
-                <Icon
-                  name="pencil"
-                  size={20}
-                  color="#6A5BC2"
-                  style={{marginLeft: 10}}
-                />
-              </>
-            )}
-          </TouchableOpacity>
-          {/* Phone Number */}
-          <Text style={styles.phoneNumber}>{phoneNumber}</Text>
+              </View>
 
-          {/* Edit Button */}
-          <TouchableOpacity
-            style={[
-              styles.editButton,
-              {
-                backgroundColor: theme.containerBackground,
-                opacity: hasChanged ? 1 : 0.3,
-              },
-            ]}
-            onPress={handleUpdate}
-            disabled={!hasChanged}>
-            <Text style={[styles.editButtonText, {color: theme.text}]}>
-              Update
-            </Text>
-          </TouchableOpacity>
-        </View>
+              {/* Name */}
+              <TouchableOpacity
+                style={styles.nameContainer}
+                onPress={() => setIsEditing(true)}
+                activeOpacity={0.7}>
+                {isEditing ? (
+                  <>
+                    <TextInput
+                      style={styles.profileNameInput}
+                      value={name}
+                      onChangeText={setName}
+                    />
+                    <TouchableOpacity onPress={handleUpdateName}>
+                      <Text style={styles.updateButtonText}>Update</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.profileName}>{name}</Text>
+                    <Icon
+                      name="pencil"
+                      size={20}
+                      color="#6A5BC2"
+                      style={{marginLeft: 10}}
+                    />
+                  </>
+                )}
+              </TouchableOpacity>
+              {/* Phone Number */}
+              <Text style={styles.phoneNumber}>{phoneNumber}</Text>
+
+              {/* Edit Button */}
+              <TouchableOpacity
+                style={[
+                  styles.editButton,
+                  {
+                    backgroundColor: theme.containerBackground,
+                    opacity: hasChanged ? 1 : 0.3,
+                  },
+                ]}
+                onPress={handleUpdate}
+                disabled={!hasChanged}>
+                <Text style={[styles.editButtonText, {color: theme.text}]}>
+                  Update
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </View>
       {isLoading && (
         <View style={styles.overlay}>
