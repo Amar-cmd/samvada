@@ -168,9 +168,7 @@ const ChatDetailsScreen = ({navigation, route}) => {
         </View>
 
         <View style={[styles.content, {backgroundColor: theme.background}]}>
-          <ScrollView
-            showsVerticalScrollIndicator={true}
-          >
+          <ScrollView showsVerticalScrollIndicator={true}>
             {chatMessages.map(msg => (
               <TouchableOpacity
                 key={msg.id}
@@ -228,9 +226,16 @@ const ChatDetailsScreen = ({navigation, route}) => {
             styles.selectionToolbar,
             {backgroundColor: theme.containerBackground},
           ]}>
-          <Text>{selectedMessages.length} selected</Text>
+          <Text style={styles.selectionText}>
+            {selectedMessages.length} selected
+          </Text>
           <TouchableOpacity onPress={handleDeleteSelectedMessages}>
-            <Icon name="trash-outline" size={30} color="#7A7A7A" />
+            <Icon
+              style={styles.deleteButton}
+              name="trash-outline"
+              size={30}
+              color="#f00"
+            />
           </TouchableOpacity>
         </View>
       )}

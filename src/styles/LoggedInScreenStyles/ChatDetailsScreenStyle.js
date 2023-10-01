@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: '#6A5BC2',
     backgroundColor: '#FFFFFF',
+    color: '#6A5BC2',
   },
   selectionText: {
     fontSize: 16,
