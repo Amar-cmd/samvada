@@ -1,4 +1,4 @@
-import React, {useContext, useState, useEffect} from 'react';
+import React, {useContext, useState, useEffect, useRef} from 'react';
 import {
   Text,
   View,
@@ -30,6 +30,8 @@ const ChatDetailsScreen = ({navigation, route}) => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
 
+    const scrollViewRef = useRef(null);
+
   const handleToggleMessageSelection = messageId => {
     if (selectedMessages.includes(messageId)) {
       setSelectedMessages(prevSelected =>
@@ -47,7 +49,7 @@ const ChatDetailsScreen = ({navigation, route}) => {
 
   const handleDeleteSelectedMessages = () => {
     Alert.alert(
-      'Delete Message',
+      'Delete Message?',
       'Are you sure you want to delete the selected message(s)?',
       [
         {text: 'Cancel', style: 'cancel'},
@@ -57,9 +59,23 @@ const ChatDetailsScreen = ({navigation, route}) => {
           onPress: async () => {
             const chatID = [UID, receiverUID].sort().join('_');
             const chatRef = database().ref(`conversations/${chatID}/messages`);
-            for (let messageId of selectedMessages) {
-              await chatRef.child(messageId).remove();
-            }
+
+            // Filter out the receiver's messages and store them
+            const updatedChatMessages = chatMessages.filter(msg => {
+              if (selectedMessages.includes(msg.id)) {
+                // If the message sender is the current user, delete the message from the backend
+                if (msg.sender === UID) {
+                  chatRef.child(msg.id).remove();
+                }
+                return false;
+              }
+              return true;
+            });
+
+            // Update the local state with the filtered messages (excluding the receiver's selected messages)
+            setChatMessages(updatedChatMessages);
+
+            // Reset the selection mode
             setSelectedMessages([]);
             setIsSelectionMode(false);
           },
@@ -168,7 +184,12 @@ const ChatDetailsScreen = ({navigation, route}) => {
         </View>
 
         <View style={[styles.content, {backgroundColor: theme.background}]}>
-          <ScrollView showsVerticalScrollIndicator={true}>
+          <ScrollView
+            showsVerticalScrollIndicator={true}
+            ref={scrollViewRef}
+            onContentSizeChange={() => {
+              scrollViewRef.current.scrollToEnd({animated: false});
+            }}>
             {chatMessages.map(msg => (
               <TouchableOpacity
                 key={msg.id}
