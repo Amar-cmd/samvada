@@ -11,6 +11,7 @@ import RecieverProfileScreen from './screens/LoggedInScreens/RecieverProfileScre
 import LoginOTPScreen from './screens/LoggedOutScreens/LoginOTPScreen';
 import AllContactsScreen from './screens/LoggedInScreens/AllContactsScreen';
 import WallpaperScreen from './screens/LoggedInScreens/WallpaperScreen';
+import WallpaperViewer from './screens/LoggedInScreens/WallpaperViewer';
 
 const Stack = createStackNavigator();
 
@@ -18,15 +19,21 @@ export const SignedInStack = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
         name="Wallpaper"
         component={WallpaperScreen}
         options={{headerShown: false}}
       />
       <Stack.Screen
-        name="Home"
-        component={HomeScreen}
+        name="WallpaperViewer"
+        component={WallpaperViewer}
         options={{headerShown: false}}
       />
+
       <Stack.Screen
         name="RecieverProfile"
         component={RecieverProfileScreen}
