@@ -29,8 +29,9 @@ const ChatDetailsScreen = ({navigation, route}) => {
   const [chatMessages, setChatMessages] = useState([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
+  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
-    const scrollViewRef = useRef(null);
+  const scrollViewRef = useRef(null);
 
   const handleToggleMessageSelection = messageId => {
     if (selectedMessages.includes(messageId)) {
@@ -97,6 +98,7 @@ const ChatDetailsScreen = ({navigation, route}) => {
   const handleSendMessage = () => {
     const trimmedMessage = message.trim();
     if (trimmedMessage) {
+      setShouldScrollToBottom(true);
       // Create a chat reference based on sender and receiver UIDs
       const chatID = [UID, receiverUID].sort().join('_');
       const chatRef = database().ref(`conversations/${chatID}/messages`);
@@ -137,6 +139,7 @@ const ChatDetailsScreen = ({navigation, route}) => {
     if (selectedMessages.length === 0) {
       setIsSelectionMode(false);
     }
+    setShouldScrollToBottom(false);
   }, [selectedMessages]);
 
   return (
@@ -188,7 +191,9 @@ const ChatDetailsScreen = ({navigation, route}) => {
             showsVerticalScrollIndicator={true}
             ref={scrollViewRef}
             onContentSizeChange={() => {
-              scrollViewRef.current.scrollToEnd({animated: false});
+              if (shouldScrollToBottom) {
+                scrollViewRef.current.scrollToEnd({animated: false});
+              }
             }}>
             {chatMessages.map(msg => (
               <TouchableOpacity
