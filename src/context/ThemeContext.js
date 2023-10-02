@@ -2,6 +2,8 @@ import React, {createContext, useState, useEffect} from 'react';
 import {Appearance} from 'react-native';
 import lightLogo from '../assets/samvada-logo-black.png';
 import darkLogo from '../assets/samvada-logo-white.png';
+import wallpaperTemplateBlack from '../assets/wallpaper-template-black.png';
+import wallpaperTemplateWhite from '../assets/wallpaper-template-white.png';
 
 export const ThemeContext = createContext();
 
@@ -32,6 +34,7 @@ const lightTheme = {
   borderColor: '#6A5BC2',
   buttonText: '#6A5BC2',
   logo: lightLogo,
+  wallpaperImage: wallpaperTemplateWhite,
 };
 
 const darkTheme = {
@@ -43,4 +46,5 @@ const darkTheme = {
   borderColor: '#6A5BC2',
   buttonText: '#6A5BC2',
   logo: darkLogo,
+  wallpaperImage: wallpaperTemplateBlack,
 };

@@ -11,7 +11,6 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import lightLogo from '../../assets/samvada-logo-black.png';
 import {ThemeContext} from '../../context/ThemeContext';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {launchImageLibrary} from 'react-native-image-picker';
@@ -38,7 +37,10 @@ const ProfileScreen = ({navigation, route}) => {
 
   const handleUpdateName = () => {
     setIsEditing(false);
-    // Here you can add the logic to update the name in your backend or database
+  };
+
+  const handleWallpaperPress = () => {
+    navigation.navigate('Wallpaper');
   };
 
   const handleProfileImagePress = () => {
@@ -240,6 +242,25 @@ const ProfileScreen = ({navigation, route}) => {
                   Update
                 </Text>
               </TouchableOpacity>
+              <View
+                style={[
+                  styles.wallpaperView,
+                  {borderColor: theme.containerBackground},
+                ]}>
+                <TouchableOpacity
+                  style={[
+                    styles.wallpaperButton,
+                    {
+                      backgroundColor: theme.containerBackground,
+                      opacity: 1, // Always active
+                    },
+                  ]}
+                  onPress={handleWallpaperPress}>
+                  <Text style={[styles.editButtonText, {color: theme.text}]}>
+                    Wallpaper
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
         </KeyboardAvoidingView>

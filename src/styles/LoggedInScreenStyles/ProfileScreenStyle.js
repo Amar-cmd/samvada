@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     width: isTablet ? '80%' : '90%',
   },
+
   editButtonText: {
     color: 'white',
     alignSelf: 'center',
@@ -101,6 +102,19 @@ const styles = StyleSheet.create({
     padding: isTablet ? 60 : 40,
     backgroundColor: '#6A5BC2',
     borderRadius: 20,
+  },
+  wallpaperView: {
+    marginVertical: 20,
+    borderTopWidth: 1,
+    width: isTablet ? '80%' : '90%',
+  },
+  wallpaperButton: {
+    marginTop: 20,
+    alignSelf:'center',
+    padding: isTablet ? 15 : 10,
+    borderColor: '#6A5BC2',
+    borderWidth: 1,
+    width: isTablet ? '80%' : '100%',
   },
 });
 
