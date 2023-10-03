@@ -8,18 +8,23 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
+  ImageBackground,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {ThemeContext} from '../../context/ThemeContext';
 import database from '@react-native-firebase/database';
 import styles from '../../styles/LoggedInScreenStyles/ChatDetailsScreenStyle';
+import {WallpaperContext} from '../../context/WallpaperContext'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ChatDetailsScreen = ({navigation, route}) => {
   const theme = useContext(ThemeContext);
+  const {wallpaper, setWallpaper} = useContext(WallpaperContext);
   const UID = route.params.UID;
   const receiverUID = route.params.receiverUID;
   const username = route.params.user;
   const userImage = route.params.userImage;
+
 
   console.log('==========================');
   console.log('sender UID = ', UID);
@@ -30,6 +35,7 @@ const ChatDetailsScreen = ({navigation, route}) => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
+  const [localWallpaper, setLocalWallpaper] = useState(null);
 
   const scrollViewRef = useRef(null);
 
@@ -142,6 +148,33 @@ const ChatDetailsScreen = ({navigation, route}) => {
     setShouldScrollToBottom(false);
   }, [selectedMessages]);
 
+  useEffect(() => {
+    const loadWallpaper = async () => {
+      try {
+        // Retrieve the wallpaper source from AsyncStorage
+        const savedWallpaper = await AsyncStorage.getItem('wallpaper');
+
+        if (savedWallpaper !== null) {
+          const parsedWallpaper = JSON.parse(savedWallpaper);
+          setLocalWallpaper({source: parsedWallpaper});
+
+          // Update the global wallpaper state if it's different
+          // from the saved wallpaper
+          if (
+            JSON.stringify(wallpaper?.source) !==
+            JSON.stringify(parsedWallpaper)
+          ) {
+            setWallpaper({source: parsedWallpaper});
+          }
+        }
+      } catch (error) {
+        console.error("Couldn't load wallpaper", error);
+      }
+    };
+
+    loadWallpaper();
+  }, [wallpaper, setWallpaper]);
+
   return (
     <>
       <StatusBar
@@ -186,8 +219,8 @@ const ChatDetailsScreen = ({navigation, route}) => {
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.content, {backgroundColor: theme.background}]}>
-          <ScrollView
+        <View style={styles.content}>
+          {/* <ScrollView
             showsVerticalScrollIndicator={true}
             ref={scrollViewRef}
             onContentSizeChange={() => {
@@ -226,7 +259,98 @@ const ChatDetailsScreen = ({navigation, route}) => {
                 </Text>
               </TouchableOpacity>
             ))}
-          </ScrollView>
+          </ScrollView> */}
+
+          {wallpaper ? (
+            // <ImageBackground source={wallpaper.source} style={styles.backgroundImage}>
+            <ImageBackground
+              source={localWallpaper?.source || wallpaper.source}
+              style={styles.backgroundImage}>
+              <ScrollView
+                showsVerticalScrollIndicator={true}
+                ref={scrollViewRef}
+                onContentSizeChange={() => {
+                  if (shouldScrollToBottom) {
+                    scrollViewRef.current.scrollToEnd({animated: false});
+                  }
+                }}>
+                {chatMessages.map(msg => (
+                  <TouchableOpacity
+                    key={msg.id}
+                    activeOpacity={0.8}
+                    style={[
+                      msg.sender === UID
+                        ? styles.senderMessageContainer
+                        : styles.recipientMessageContainer,
+                      selectedMessages.includes(msg.id)
+                        ? styles.selectedMessage
+                        : null,
+                    ]}
+                    onLongPress={() => handleActivateSelectionMode(msg.id)}
+                    onPress={() => {
+                      // Only handle tap selection if selection mode is active
+                      if (isSelectionMode) {
+                        handleToggleMessageSelection(msg.id);
+                      }
+                    }}>
+                    <Text
+                      style={
+                        msg.sender === UID
+                          ? styles.senderMessage
+                          : styles.recipientMessage
+                      }>
+                      {msg.text}
+                    </Text>
+                    <Text style={styles.messageTime}>
+                      {formatTime(msg.timestamp)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </ImageBackground>
+          ) : (
+            <ScrollView
+              showsVerticalScrollIndicator={true}
+              ref={scrollViewRef}
+              onContentSizeChange={() => {
+                if (shouldScrollToBottom) {
+                  scrollViewRef.current.scrollToEnd({animated: false});
+                }
+              }}>
+              {chatMessages.map(msg => (
+                <TouchableOpacity
+                  key={msg.id}
+                  activeOpacity={0.8}
+                  style={[
+                    msg.sender === UID
+                      ? styles.senderMessageContainer
+                      : styles.recipientMessageContainer,
+                    selectedMessages.includes(msg.id)
+                      ? styles.selectedMessage
+                      : null,
+                  ]}
+                  onLongPress={() => handleActivateSelectionMode(msg.id)}
+                  onPress={() => {
+                    // Only handle tap selection if selection mode is active
+                    if (isSelectionMode) {
+                      handleToggleMessageSelection(msg.id);
+                    }
+                  }}>
+                  <Text
+                    style={
+                      msg.sender === UID
+                        ? styles.senderMessage
+                        : styles.recipientMessage
+                    }>
+                    {msg.text}
+                  </Text>
+                  <Text style={styles.messageTime}>
+                    {formatTime(msg.timestamp)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
         </View>
       </View>
       <View

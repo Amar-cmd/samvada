@@ -4,6 +4,7 @@ import {SignedInStack, SignedOutStack} from './src/Navigation';
 import {ThemeProvider} from './src/context/ThemeContext';
 import auth from '@react-native-firebase/auth';
 import ToastProvider from './src/provider/ToastProvider'; // Make sure to adjust the path
+import { WallpaperProvider } from './src/context/WallpaperContext';
 
 const App: React.FC = () => {
   const [loggedInUser, setLoggedInUser] = useState<boolean | null>(null);
@@ -31,9 +32,11 @@ const App: React.FC = () => {
   return (
     <ToastProvider>
       <ThemeProvider>
-        <NavigationContainer>
-          {loggedInUser ? <SignedInStack /> : <SignedOutStack />}
-        </NavigationContainer>
+        <WallpaperProvider>
+          <NavigationContainer>
+            {loggedInUser ? <SignedInStack /> : <SignedOutStack />}
+          </NavigationContainer>
+        </WallpaperProvider>
       </ThemeProvider>
     </ToastProvider>
   );

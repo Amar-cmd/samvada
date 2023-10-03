@@ -3,7 +3,7 @@ import {StyleSheet} from 'react-native'
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    // padding: 10,
   },
   toolbar: {
     flexDirection: 'row',
@@ -31,30 +31,38 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    // paddingHorizontal: 10,
+    // paddingVertical: 10,
   },
   recipientMessageContainer: {
     alignSelf: 'flex-start',
     padding: 10,
-    borderBottomLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 10,
+    borderTopRightRadius: 30,
     marginBottom: 10,
     maxWidth: '70%',
+    minWidth: '25%',
     borderColor: '#6A5BC2',
     borderWidth: 1,
+    marginHorizontal: 10,
+    backgroundColor: '#E4DFFC',
   },
   senderMessageContainer: {
     alignSelf: 'flex-end',
     backgroundColor: '#6A5BC2',
     padding: 10,
-    borderTopLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    borderTopLeftRadius: 25,
+    borderBottomRightRadius: 25,
+    borderBottomLeftRadius: 10,
     marginBottom: 10,
     maxWidth: '70%',
+    minWidth: '25%',
+
+    marginHorizontal: 10,
   },
   recipientMessage: {
-    color: '#6A5BC2',
+    color: '#000',
   },
   senderMessage: {
     color: 'white',
@@ -84,9 +92,11 @@ const styles = StyleSheet.create({
   },
   messageTime: {
     alignSelf: 'flex-end',
-    fontSize: 10,
-    color: '#b4ade0',
+    fontSize: 12,
+    color: '#000',
     marginTop: 5,
+    opacity: 0.6,
+    fontWeight:'bold',
   },
   selectedMessage: {
     borderColor: '#FFFAF0',
@@ -115,6 +125,9 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     marginRight: 5,
     color: '#FF0000',
+  },
+  backgroundImage: {
+    flex: 1,
   },
 });
 

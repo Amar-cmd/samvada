@@ -12,6 +12,7 @@ import LoginOTPScreen from './screens/LoggedOutScreens/LoginOTPScreen';
 import AllContactsScreen from './screens/LoggedInScreens/AllContactsScreen';
 import WallpaperScreen from './screens/LoggedInScreens/WallpaperScreen';
 import WallpaperViewer from './screens/LoggedInScreens/WallpaperViewer';
+import WallpaperPreviewScreen from './screens/LoggedInScreens/WallpaperPreviewScreen';
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,12 @@ export const SignedInStack = () => {
         component={WallpaperScreen}
         options={{headerShown: false}}
       />
+      <Stack.Screen
+        name="WallpaperPreview"
+        component={WallpaperPreviewScreen}
+        options={{headerShown: false}}
+      />
+
       <Stack.Screen
         name="WallpaperViewer"
         component={WallpaperViewer}

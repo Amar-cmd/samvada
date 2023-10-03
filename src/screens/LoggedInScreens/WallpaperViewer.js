@@ -58,9 +58,11 @@ const WallpaperViewer = ({route, navigation}) => {
 
   const [selectedImage, setSelectedImage] = useState(null);
 
-  const handleImageSelect = image => {
-    setSelectedImage(image);
-  };
+ const handleImageSelect = image => {
+   // Navigate to WallpaperPreviewScreen and pass the selected image data
+   navigation.navigate('WallpaperPreview', {wallpaper: image});
+ };
+
 
   const toolbarTitle = () => {
     return themeType;
@@ -73,8 +75,6 @@ const WallpaperViewer = ({route, navigation}) => {
   };
 
   const wallpapers = themeType === 'Light' ? lightWallpapers : darkWallpapers;
-  const sectionTitle =
-    themeType === 'Light' ? 'Light Wallpapers' : 'Dark Wallpapers';
 
   return (
     <>
