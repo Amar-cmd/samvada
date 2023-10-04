@@ -18,6 +18,7 @@ import {
   TextInput,
   SectionList,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {ThemeContext} from '../../context/ThemeContext';
@@ -42,7 +43,7 @@ const AllContactsScreen = ({navigation}) => {
   const [userUids, setUserUids] = useState({});
   const [usernames, setUsernames] = useState({});
 const [currentUID, setCurrentUID] = useState(null);
-
+  const [permissionGranted, setPermissionGranted] = useState(false);
   //! If Build Does Not Work in Production app then look at its npm docs and proguard code file.
 
   //* to convert +91 12345 67890 to +911234567890
@@ -84,28 +85,69 @@ const [currentUID, setCurrentUID] = useState(null);
     );
   });
 
-  const requestContactsPermission = useCallback(async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
-        {
-          title: 'Contacts Permission',
-          message: 'This app would like to view your contacts.',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
+  // const requestContactsPermission = useCallback(async () => {
+  //   try {
+  //     const granted = await PermissionsAndroid.request(
+  //       PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+  //       {
+  //         title: 'Contacts Permission',
+  //         message: 'This app would like to view your contacts.',
+  //         buttonNeutral: 'Ask Me Later',
+  //         buttonNegative: 'Cancel',
+  //         buttonPositive: 'OK',
+  //       },
+  //     );
 
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        fetchContacts();
-      } else {
-        console.warn('Contacts permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  });
+  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //       fetchContacts();
+  //     } else {
+  //       console.warn('Contacts permission denied');
+  //     }
+  //   } catch (err) {
+  //     console.warn(err);
+  //   }
+  // });
+
+ const requestContactsPermission = useCallback(async () => {
+   try {
+     const granted = await PermissionsAndroid.request(
+       PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+       {
+         title: 'Contacts Permission',
+         message: 'This app would like to view your contacts.',
+         buttonNeutral: 'Ask Me Later',
+         buttonNegative: 'Cancel',
+         buttonPositive: 'OK',
+       },
+     );
+
+     console.log('Permission status:', granted);
+
+     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+       fetchContacts();
+       setPermissionGranted(true);
+     } else if (granted === PermissionsAndroid.RESULTS.DENIED) {
+       // User denied permission. You might want to disable features or
+       // try requesting permission again after a certain interval or user action.
+       showToast('Contact Access Permission Denied');
+        // setPermissionGranted(false);
+       navigation.navigate('Home');
+
+     } else if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+       // User denied permission and selected "Never ask again".
+       // You might want to explain to users that they need to enable the permission manually.
+       showToast(
+         'Please enable contact permission in settings to use this feature.',
+       );
+       navigation.navigate('Home')
+     }
+   } catch (err) {
+     console.warn('Permissions error:', err);
+     showToast('An error occurred while requesting permissions');
+   }
+ }, [fetchContacts, showToast]);
+
+
   const sortContactsByName = (a, b) => {
     const nameA = (a.givenName || '').toUpperCase();
     const nameB = (b.givenName || '').toUpperCase();
@@ -125,7 +167,8 @@ const [currentUID, setCurrentUID] = useState(null);
 
   const fetchContacts = useCallback(async (showToastOnCompletion = false) => {
     setIsRefreshing(true);
-
+    if (!permissionGranted) return;
+    
     try {
       let contactsList = await Contacts.getAll();
 
@@ -211,7 +254,10 @@ const [currentUID, setCurrentUID] = useState(null);
   };
 
   useEffect(() => {
-    requestContactsPermission();
+    console.log(permissionGranted);
+    if (!permissionGranted) {
+      requestContactsPermission();
+    }
   }, []);
 
   // useEffect(() => {

@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   allMessagesHeader: {
     fontSize: isTablet ? 20 : 16,
     marginBottom: 20,
-    color: '#7A7A7A',
+    color: '#6A5BC2',
     paddingVertical: isTablet ? 15 : 10,
     paddingHorizontal: isTablet ? 30 : 20,
     borderRadius: 30,
@@ -96,12 +96,13 @@ const styles = StyleSheet.create({
     padding: isTablet ? 25 : 10,
     borderWidth: 1,
     borderRadius: 5,
-    borderColor: '#7A7A7A',
+    borderColor: '#6A5BC2',
     marginTop: isTablet ? 25 : 10,
   },
   editText: {
     fontSize: isTablet ? 25 : 14,
     textAlign: 'center',
+    color: '#6A5BC2',
   },
 
   fullScreenTouchable: {
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: isTablet ? 15 : 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    // borderBottomColor: '#eee',
     backgroundColor: '#f5f5f5',
   },
   selectedProfileContainer: {

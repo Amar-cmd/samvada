@@ -13,12 +13,18 @@ import AllContactsScreen from './screens/LoggedInScreens/AllContactsScreen';
 import WallpaperScreen from './screens/LoggedInScreens/WallpaperScreen';
 import WallpaperViewer from './screens/LoggedInScreens/WallpaperViewer';
 import WallpaperPreviewScreen from './screens/LoggedInScreens/WallpaperPreviewScreen';
+import {TransitionPresets} from '@react-navigation/stack';
 
 const Stack = createStackNavigator();
 
 export const SignedInStack = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        ...TransitionPresets.BottomSheetAndroid,
+        cardOverlayEnabled: true,
+        gestureEnabled: true,
+      }}>
       <Stack.Screen
         name="Home"
         component={HomeScreen}
@@ -67,7 +73,12 @@ export const SignedInStack = () => {
 
 export const SignedOutStack = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        ...TransitionPresets.BottomSheetAndroid,
+        cardOverlayEnabled: true,
+        gestureEnabled: true,
+      }}>
       <Stack.Screen
         name="Welcome"
         component={WelcomeScreen}
@@ -83,7 +94,6 @@ export const SignedOutStack = () => {
         component={LoginOTPScreen}
         options={{headerShown: false}}
       />
-
       <Stack.Screen
         name="Register"
         component={RegisterScreen}

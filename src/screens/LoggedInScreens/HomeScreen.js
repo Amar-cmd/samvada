@@ -8,6 +8,7 @@ import {
   ScrollView,
   Image,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -25,6 +26,7 @@ const HomeScreen = ({navigation}) => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const {showToast} = useContext(ToastContext);
 
@@ -42,6 +44,7 @@ const HomeScreen = ({navigation}) => {
   };
 
   const handleDeleteSelected = () => {
+    setLoading(true);
     // Prompt the user for confirmation using an Alert
     Alert.alert(
       'Delete Messages',
@@ -78,6 +81,7 @@ const HomeScreen = ({navigation}) => {
             // Reset the selection state
             setIsSelectionMode(false);
             setSelectedUsers([]);
+            setLoading(false);
           },
         },
       ],
@@ -85,6 +89,8 @@ const HomeScreen = ({navigation}) => {
   };
 
   const handleLogout = async () => {
+    setLoading(true);
+
     try {
       setIsLoggingOut(true);
       await auth().signOut();
@@ -92,10 +98,14 @@ const HomeScreen = ({navigation}) => {
     } catch (error) {
       Alert.alert('Logout Error', error.message);
       setIsLoggingOut(false); // reset state if there's an error
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchUserData = async uid => {
+    setLoading(true);
+
     try {
       const userDocument = await firestore().collection('users').doc(uid).get();
       if (userDocument.exists) {
@@ -105,6 +115,8 @@ const HomeScreen = ({navigation}) => {
       }
     } catch (error) {
       console.error('Error fetching user data: ', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -181,7 +193,7 @@ const HomeScreen = ({navigation}) => {
         }
         backgroundColor={theme.containerBackground}
       />
-
+      {/* {loading && <ActivityIndicator size={large} color='#4DB6AC'/>} */}
       <ScrollView style={{flex: 1}} contentContainerStyle={{flexGrow: 1}}>
         <View
           style={[
@@ -190,7 +202,7 @@ const HomeScreen = ({navigation}) => {
           ]}>
           <View style={styles.toolbar}>
             <TouchableOpacity onPress={() => setShowMenu(true)}>
-              <Icon name="menu" size={styles.icon.fontSize} color="#7A7A7A" />
+              <Icon name="menu" size={styles.icon.fontSize} color="#6A5BC2" />
             </TouchableOpacity>
 
             <Image
@@ -203,7 +215,7 @@ const HomeScreen = ({navigation}) => {
               onPress={() => {
                 navigation.navigate('AllContacts');
               }}>
-              <Icon name="people" size={styles.icon.fontSize} color="#7A7A7A" />
+              <Icon name="people" size={styles.icon.fontSize} color="#6A5BC2" />
             </TouchableOpacity>
           </View>
 
@@ -212,56 +224,63 @@ const HomeScreen = ({navigation}) => {
             <View></View>
 
             {/* //* All Messages */}
-            <View style={styles.allMessagesContainer}>
-              <Text
-                style={[
-                  styles.allMessagesHeader,
-                  {backgroundColor: theme.containerBackground},
-                ]}>
-                All Messages
-              </Text>
+            {loading ? (
+              <View style={{width:'100%', height:'100%', justifyContent:'center', alignItems:'center'}}>
+                <ActivityIndicator size="large" color="#6A5BC2" />
+                <Text style={color= theme.text}>Loading...</Text>
+              </View>
+            ) : (
+              <View style={styles.allMessagesContainer}>
+                <Text
+                  style={[
+                    styles.allMessagesHeader,
+                    {backgroundColor: theme.containerBackground},
+                  ]}>
+                  All Messages
+                </Text>
 
-              {recentChats.map(user => (
-                <TouchableOpacity
-                  key={user.UID}
-                  style={
-                    selectedUsers.includes(user.UID)
-                      ? styles.selectedProfileContainer
-                      : styles.profileContainer
-                  }
-                  onLongPress={() => {
-                    if (!isSelectionMode) {
-                      setIsSelectionMode(true);
+                {recentChats.map(user => (
+                  <TouchableOpacity
+                    key={user.UID}
+                    style={
+                      selectedUsers.includes(user.UID)
+                        ? styles.selectedProfileContainer
+                        : styles.profileContainer
                     }
-                    handleUserSelect(user.UID);
-                  }}
-                  onPress={() => {
-                    if (isSelectionMode) {
+                    onLongPress={() => {
+                      if (!isSelectionMode) {
+                        setIsSelectionMode(true);
+                      }
                       handleUserSelect(user.UID);
-                    } else {
-                      navigation.navigate('ChatDetails', {
-                        UID: senderUID,
-                        receiverUID: user.UID,
-                        user: user.username,
-                        userImage: user.userImage,
-                      });
-                    }
-                  }}
-                  activeOpacity={0.7}>
-                  <Image
-                    source={{uri: user.userImage}}
-                    style={styles.profileImage}
-                  />
-                  <View style={styles.messageInfo}>
-                    <Text style={styles.profileName}>
-                      {senderUID === user.UID
-                        ? `${user.username} (You)`
-                        : user.username}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
+                    }}
+                    onPress={() => {
+                      if (isSelectionMode) {
+                        handleUserSelect(user.UID);
+                      } else {
+                        navigation.navigate('ChatDetails', {
+                          UID: senderUID,
+                          receiverUID: user.UID,
+                          user: user.username,
+                          userImage: user.userImage,
+                        });
+                      }
+                    }}
+                    activeOpacity={0.7}>
+                    <Image
+                      source={{uri: user.userImage}}
+                      style={styles.profileImage}
+                    />
+                    <View style={styles.messageInfo}>
+                      <Text style={styles.profileName}>
+                        {senderUID === user.UID
+                          ? `${user.username} (You)`
+                          : user.username}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
         </View>
       </ScrollView>
@@ -300,7 +319,7 @@ const HomeScreen = ({navigation}) => {
             <TouchableOpacity
               style={styles.editButton}
               onPress={handleEditPress}>
-              <Text style={[styles.editText, {color: theme.text}]}>Edit Profile</Text>
+              <Text style={styles.editText}>Edit Profile</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -311,7 +330,9 @@ const HomeScreen = ({navigation}) => {
             styles.selectionToolbar,
             {backgroundColor: theme.containerBackground},
           ]}>
-          <Text>{selectedUsers.length} selected</Text>
+          <Text style={{color: '#6A5BC2', paddingLeft: 10}}>
+            {selectedUsers.length} selected
+          </Text>
           <TouchableOpacity
             onPress={() => {
               // handle delete action here
@@ -322,7 +343,7 @@ const HomeScreen = ({navigation}) => {
               <Icon
                 name="trash-outline"
                 size={styles.icon.fontSize}
-                color="#7A7A7A"
+                color="#900"
               />
             </TouchableOpacity>
           </TouchableOpacity>
